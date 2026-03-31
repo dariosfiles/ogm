@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OGMarket | hotspotsitos</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #222222;
+      --accent: #c8ff00;
+      --text: #e8e8e8;
+      --muted: #888;
+      --gold: linear-gradient(90deg, #bf953f, #fcf6ba, #b38728, #fcf6ba, #aa771c);
+      /* Prevent selection */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Allow selection only in the search input */
+    .search-wrap input {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,10,0.93); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem; height: 60px;
+    }
+
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .logo span { color: var(--accent); }
+
+    .header-right { display: flex; align-items: center; gap: 1rem; flex: 1; justify-content: flex-end; }
+
+    .reg-btn {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .reg-btn:hover { opacity: 0.9; }
+
+    .search-wrap { width: 100%; max-width: 360px; position: relative; }
+    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--muted); width: 15px; height: 15px; }
+    .search-wrap input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem 0.5rem 2.4rem; border-radius: 6px; outline: none; }
+
+    main { display: flex; flex-direction: column; align-items: center; padding: 4rem 2rem; max-width: 600px; margin: 0 auto; }
+
+    .pfp-wrap { position: relative; margin-bottom: 1.5rem; }
+    .profile-pic {
+      width: 130px; height: 130px; border-radius: 50%; border: 2px solid var(--border);
+      padding: 4px; transition: all 0.3s cubic-bezier(.22,.61,.36,1); cursor: crosshair;
+    }
+    .pfp-wrap:hover .profile-pic {
+      border-color: #bf953f; transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(191, 149, 63, 0.3);
+      animation: pulse-glow 2s infinite 0.3s;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(191, 149, 63, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(191, 149, 63, 0.5); }
+    }
+
+    .name-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .name {
+      font-size: 2rem; font-weight: 800;
+      background: var(--gold); background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shine 4s linear infinite;
+    }
+    @keyframes shine { to { background-position: 200% center; } }
+    .verified-check { width: 20px; height: 20px; color: #3897f0; fill: currentColor; }
+
+    .discord-box {
+      display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03);
+      padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);
+      cursor: pointer; margin-bottom: 3rem; transition: 0.2s;
+    }
+    .discord-box:hover { background: rgba(255,255,255,0.08); border-color: #444; }
+    .discord-icon { width: 16px; height: 16px; opacity: 0.8; }
+    .discord-handle { font-size: 0.85rem; color: var(--muted); }
+
+    /* --- Vouch Box --- */
+    .vouch-container { width: 100%; background: #0f0f0f; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; }
+    .vouch-header { padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #121212; }
+    .vouch-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+    .vouch-count { font-size: 0.7rem; color: var(--accent); background: rgba(200, 255, 0, 0.1); padding: 2px 8px; border-radius: 10px; }
+
+    .vouch-scroll {
+      max-height: 550px; overflow-y: auto; padding: 10px;
+      scrollbar-width: thin; scrollbar-color: #222 transparent;
+      mask-image: linear-gradient(to bottom, black 94%, transparent 100%);
+    }
+    .vouch-scroll::-webkit-scrollbar { width: 4px; }
+    .vouch-scroll::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+
+    .vouch-card { background: rgba(255,255,255,0.01); border: 1px solid transparent; padding: 12px; border-radius: 8px; margin-bottom: 8px; transition: 0.2s; }
+    .vouch-card:hover { border-color: #333; background: rgba(255,255,255,0.04); }
+    .vouch-user { font-size: 0.8rem; font-weight: 700; color: #aaa; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .vouch-date { font-size: 0.65rem; color: #444; font-weight: 400; }
+    .vouch-text { font-size: 0.85rem; color: #ccc; line-height: 1.4; }
+
+    .swal2-popup { border: 1px solid var(--border) !important; border-radius: 15px !important; background: #141414 !important; color: #e8e8e8 !important; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">OG<span>Market</span></div>
+    <div class="header-right">
+      <button class="reg-btn" onclick="registerError()">Register</button>
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search users…" autocomplete="off" />
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="pfp-wrap"><img class="profile-pic" src="https://files.catbox.moe/qkgzrx.png" alt="Profile"></div>
+
+    <div class="name-wrapper">
+      <h1 class="name">hotspotsitos</h1>
+      <svg class="verified-check" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7l-3.3-3.3c-.4-.4-.4-1 0-1.4s1-.4 1.4 0l1.9 1.9 4.8-4.8c.4-.4 1-.4 1.4 0s.4 1 0 1.4l-5.5 5.5c-.2.2-.5.3-.7.3-.2 0-.5-.1-.7-.3z"/></svg>
+    </div>
+
+    <div class="discord-box" onclick="copyDiscord()">
+      <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" class="discord-icon" alt="Discord">
+      <span class="discord-handle">swappingcards</span>
+    </div>
+
+    <div class="vouch-container">
+      <div class="vouch-header">
+        <span class="vouch-title">Reviews</span>
+        <span id="vouchCountDisplay" class="vouch-count">0 vouches</span>
+      </div>
+      <div class="vouch-scroll" id="vouchList">
+        </div>
+    </div>
+  </main>
+
+  <script>
+    // Disable Right Click
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    /* =========================================
+        EDIT VOUCHES HERE 
+        Just follow the format: { name: "Name", date: "Time", text: "Comment" },
+        =========================================
+    */
+    const vouches = [
+      { name: "Anonymous", date: "Just now", text: "Legit gave me the brainrot" },
+      { name: "Anonymous", date: "5m ago", text: "Great service, fast asf" },
+      { name: "kash_flow", date: "15m ago", text: "Sent first, he gave it in minutes. VOUCH ++" },
+      { name: "drain9", date: "1h ago", text: "bought rare stuff, Legit as fuhhhh" },
+      { name: "v4mp_user", date: "3h ago", text: "huge vouch, 300eur deal no mm needed" },
+      { name: "Anonymous", date: "Today", text: "gave me a free garama afteer i bought an og" },
+      { name: "zex", date: "Today", text: "best prices in the market no cap" },
+      { name: "plug_walk", date: "Yesterday", text: "reliable, would buy again 100%" },
+      { name: "grim", date: "Yesterday", text: "spotsitos is the goat. ty for the help with the process" },
+      { name: "icy_wrl", date: "2 days ago", text: "Day 1 since he was on this site, goat!!!!" },
+      { name: "sleepy", date: "2 days ago", text: "transaction was instant. ty!!" },
+      { name: "x_facy", date: "3 days ago", text: "fast delivery no issues. legit." },
+      { name: "void_", date: "3 days ago", text: "vouch, bought a stacked account" },
+      { name: "k9unit", date: "4 days ago", text: "Vouch for hotspotsitos, Best seller on ogmarket" },
+      { name: "Anonymous", date: "4 days ago", text: "delivered in 5 mins. +vouch" },
+      { name: "drainer99", date: "5 days ago", text: "sold me roblox acc, been fine on it since i bought" },
+      { name: "swag_master", date: "5 days ago", text: "smooth deal. handled professionally" },
+      { name: "Anonymous", date: "1 week ago", text: "tysm for the brainrots bro" },
+      { name: "user_88", date: "1 week ago", text: "+vouch, safe and quick" },
+      { name: "og_collector", date: "1 week ago", text: "big vouch, dealt with high amounts and no issues." },
+      { name: "sky_high", date: "2 weeks ago", text: "vouch vouch vouch!! legit as hell" },
+      { name: "Anonymous", date: "2 weeks ago", text: "smooth as always, repeat customer here" },
+      { name: "kash", date: "2 weeks ago", text: "quick shi, no issues at all." },
+      { name: "Anonymous", date: "3 weeks ago", text: "vouched. did a 150$ deal easy" },
+      { name: "faded", date: "3 weeks ago", text: "realest in the game" },
+      { name: "Anonymous", date: "3 weeks ago", text: "fast delivery, clear comms" },
+      { name: "wraith", date: "1 month ago", text: "solid guy, trust him with my life lol" },
+      { name: "Anonymous", date: "1 month ago", text: "good deal, legit" },
+      { name: "pixel", date: "1 month ago", text: "lowk best brainrots on ogm" },
+      { name: "Anonymous", date: "1 month ago", text: "instant delivery, zero complaints" },
+      { name: "toxic", date: "1 month ago", text: "vouching for my brother spotsitos, he's safe" },
+      { name: "Anonymous", date: "2 months ago", text: "everything went fine. +vouch" },
+      { name: "ghost", date: "2 months ago", text: "fastest swap ive seen this year" },
+      { name: "Anonymous", date: "2 months ago", text: "legit seller" },
+      { name: "hades", date: "2 months ago", text: "Vouch" },
+      { name: "Anonymous", date: "2 months ago", text: "decent price, fast response" },
+      { name: "cyber", date: "3 months ago", text: "vouch for a 500$ transaction" },
+      { name: "Anonymous", date: "3 months ago", text: "real one." },
+      { name: "nitro", date: "3 months ago", text: "BOUGHT FULL BASE OF GARAMAS" },
+      { name: "Anonymous", date: "3 months ago", text: "+rep 15X diamond garamas" }
+    ];
+
+    // Function to render vouches automatically
+    function renderVouches() {
+      const container = document.getElementById('vouchList');
+      const countDisp = document.getElementById('vouchCountDisplay');
+      countDisp.innerText = `${vouches.length}+ verified sells / bought`;
+      
+      container.innerHTML = vouches.map(v => `
+        <div class="vouch-card">
+          <span class="vouch-user">${v.name} <span class="vouch-date">${v.date}</span></span>
+          <p class="vouch-text">${v.text}</p>
+        </div>
+      `).join('');
+    }
+
+    // Call render
+    renderVouches();
+
+    // Utility Functions
+    function copyDiscord() {
+      navigator.clipboard.writeText('swappingcards');
+      Swal.fire({
+        toast: true, position: 'top-end', icon: 'success', title: 'Discord copied!',
+        showConfirmButton: false, timer: 1500, background: '#141414', color: '#fff'
+      });
+    }
+
+    function registerError() {
+      Swal.fire({
+        title: 'No Access',
+        text: 'To create an seller account on OGMarket you must send us verified clips of 15+ selling or buying items.',
+        icon: 'error',
+        confirmButtonColor: '#ff4444'
+      });
+    }
+
+    document.getElementById('searchInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = e.target.value.trim().toLowerCase();
+        if (val === 'hotspotsitos') {
+          Swal.fire({ title: 'Oops..', text: 'You are already viewing hotspotsitos.', icon: 'info', confirmButtonColor: '#c8ff00' });
+        } else {
+          Swal.fire({ title: 'Not Found', text: 'No user with that name.', icon: 'error', confirmButtonColor: '#444' });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
