@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OGMarket</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --card: #141414;
+      --border: #222222;
+      --accent: #c8ff00;
+      --text: #e8e8e8;
+      --muted: #555;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.93);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 60px;
+      gap: 2rem;
+    }
+
+    .logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      color: var(--text);
+    }
+
+    .logo span { color: var(--accent); }
+
+    .search-wrap {
+      flex: 1;
+      max-width: 360px;
+      position: relative;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      width: 15px;
+      height: 15px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem 0.5rem 2.4rem;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: #444; }
+
+    main {
+      padding: 3rem 2.5rem 5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 1.8rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 1.4rem;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(.22,.61,.36,1), border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px) scale(1.012);
+      border-color: #333;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.55);
+    }
+
+    .card-img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      display: block;
+      background: #0f0f0f;
+      transition: filter 0.3s;
+    }
+
+    .card:hover .card-img { filter: brightness(1.06); }
+
+    .card-body {
+      padding: 0.9rem 1.1rem 1.1rem;
+    }
+
+    .card-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-price {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .oos {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding-top: 1.4rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Customizing SweetAlert internals to match your site */
+    .swal2-popup {
+      border: 1px solid var(--border) !important;
+      border-radius: 15px !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">OG<span>Market</span></div>
+    <div class="search-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search accounts…" autocomplete="off" />
+    </div>
+  </header>
+
+  <main>
+    <div class="section-label">Featured brainrots</div>
+
+    <div class="grid">
+      <div class="card" onclick="triggerStockAlert('Meowl')">
+        <img class="card-img" src="https://files.catbox.moe/olmrnj.PNG" alt="Meowl" />
+        <div class="card-body">
+          <div class="card-name">Meowl</div>
+          <div class="card-price">100€</div>
+        </div>
+      </div>
+
+      <div class="card" onclick="triggerStockAlert('Skibidi Toilet')">
+        <img class="card-img" src="https://files.catbox.moe/qv78mo.PNG" alt="Skibidi Toilet" />
+        <div class="card-body">
+          <div class="card-name">Skibidi Toilet</div>
+          <div class="card-price">78€</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="oos">Sorry, we ran out of stock :(</div>
+  </main>
+
+  <script>
+    const input = document.getElementById('searchInput');
+
+    // Reusable custom Toast/Alert config
+    const CustomAlert = Swal.mixin({
+      background: '#141414',
+      color: '#e8e8e8',
+      confirmButtonColor: '#c8ff00',
+      buttonsStyling: true,
+      customClass: {
+        confirmButton: 'custom-swal-button'
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault(); // Prevents instant closing/page refresh
+        
+        const val = input.value.trim();
+        if (!val) return;
+
+        if (val.toLowerCase() === 'hotspotsitos') {
+          CustomAlert.fire({
+            title: 'Account Found!',
+            text: 'Showing profile...',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+            willClose: () => {
+              window.location.href = 'https://ogmarket.online/profiles/hotspotsitos';
+            }
+          });
+        } else {
+          CustomAlert.fire({
+            title: 'Search Failed',
+            text: `No account named "${val}" exists in our database.`,
+            icon: 'error',
+            iconColor: '#ff4444',
+            confirmButtonText: 'Try Again'
+          });
+        }
+      }
+    });
+
+    // Added a function for clicking the cards
+    function triggerStockAlert(name) {
+      CustomAlert.fire({
+        title: name,
+        text: 'Item locked by seller',
+        icon: 'info',
+        iconColor: '#c8ff00'
+      });
+    }
+  </script>
+</body>
+</html>
