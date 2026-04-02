@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Download</title>
+    <style>
+        :root {
+            --primary: #10b981; /* Green */
+            --secondary: #3b82f6; /* Blue */
+            --error: #ef4444;
+            --bg: #0f172a;
+            --overlay: rgba(0, 0, 0, 0.7);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--bg);
+            color: white;
+            transition: filter 0.3s ease;
+        }
+
+        /* Blur Effect */
+        .blur-target.active {
+            filter: blur(12px);
+            pointer-events: none;
+        }
+
+        .main-content {
+            text-align: center;
+        }
+
+        .btn {
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+
+        .btn-access { background: var(--primary); }
+        .btn-key { background: var(--secondary); margin-top: 10px; width: 100%; }
+
+        .btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        /* Modal / Popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .divider {
+            margin: 15px 0;
+            height: 1px;
+            background: #e2e8f0;
+            position: relative;
+        }
+
+        .divider::after {
+            content: "OR";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 0 10px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .shake { animation: shake 0.3s ease-in-out; border-color: var(--error) !important; }
+    </style>
+</head>
+<body>
+
+    <div class="main-content blur-target" id="mainWrapper">
+        <h1>Cloud Drive</h1>
+        <p>File: <b>Package_v2.zip</b> (124 MB)</p>
+        <button class="btn btn-access" onclick="openModal()">Unlock & Download</button>
+    </div>
+
+    <!-- The Popup -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalBox">
+            <h2>Verification</h2>
+            <p style="font-size: 0.9rem; color: #64748b;">Enter your key to start the download.</p>
+            
+            <input type="password" id="keyInput" placeholder="molten_api_xxxxxx">
+            
+            <button class="btn btn-access" style="width: 100%" onclick="checkKey()">Verify Key</button>
+
+            <div class="divider"></div>
+
+            <!-- Get Key Button inside the popup -->
+            <a href="https://ogmarket.online/keys/newmolten" target="_blank" class="btn btn-key">Get Key [FREE]</a>
+            
+            <p id="statusMsg" style="color: var(--error); font-size: 0.8rem; margin-top: 15px; visibility: hidden;">Invalid access key.</p>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_KEY = "molten_api_Wh1q3wodl7";
+        
+        const overlay = document.getElementById('modalOverlay');
+        const main = document.getElementById('mainWrapper');
+        const input = document.getElementById('keyInput');
+        const status = document.getElementById('statusMsg');
+        const modalBox = document.getElementById('modalBox');
+
+        function openModal() {
+            overlay.style.display = 'flex';
+            main.classList.add('active');
+            input.focus();
+        }
+
+        function checkKey() {
+            if (input.value === CORRECT_KEY) {
+                status.style.color = "var(--primary)";
+                status.innerText = "Verified! Downloading...";
+                status.style.visibility = "visible";
+
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = 'https://gofile.io/d/ptQTtX'; // Put your file link here
+                    link.download = 'Verified_File';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    overlay.style.display = 'none';
+                    main.classList.remove('active');
+                }, 800);
+            } else {
+                status.style.visibility = "visible";
+                modalBox.classList.add('shake');
+                setTimeout(() => modalBox.classList.remove('shake'), 300);
+                input.value = "";
+            }
+        }
+
+        // Close on outside click
+        overlay.onclick = function(e) {
+            if (e.target === overlay) {
+                overlay.style.display = 'none';
+                main.classList.remove('active');
+                status.style.visibility = "hidden";
+            }
+        }
+    </script>
+</body>
+</html>
