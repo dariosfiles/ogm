@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key System</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--bg);
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 350px;
+            position: relative;
+        }
+
+        h1 { margin-top: 0; font-size: 2rem; }
+
+        .btn-start {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-start:disabled {
+            background: #334155;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* Sliding Timer Box */
+        #timerBox {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #0f172a;
+            border-radius: 12px;
+            margin-top: 0;
+            opacity: 0;
+        }
+
+        #timerBox.visible {
+            max-height: 200px;
+            margin-top: 25px;
+            padding: 20px;
+            opacity: 1;
+            border: 1px solid #334155;
+        }
+
+        .timer-display {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .warning {
+            color: var(--error);
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: none;
+            animation: pulse 1s infinite;
+        }
+
+        .key-area {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .key-box {
+            background: #334155;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            color: var(--success);
+            margin-bottom: 10px;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Key System</h1>
+        <button id="startBtn" class="btn-start" onclick="startSystem()">Start</button>
+
+        <!-- The Sliding Box -->
+        <div id="timerBox">
+            <p id="statusText">Processing Access...</p>
+            <div class="timer-display" id="countdown">60</div>
+            <p id="warnText" class="warning">⚠️ RESET: Stay on this page!</p>
+            
+            <div id="keyArea" class="key-area">
+                <p>Your Key:</p>
+                <div class="key-box">molten_api_Wh1q3wodl7</div>
+                <button class="btn-start" style="padding: 8px 20px; font-size: 0.9rem;" onclick="location.reload()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 60;
+        let timerId = null;
+        const startBtn = document.getElementById('startBtn');
+        const timerBox = document.getElementById('timerBox');
+        const countdownDisp = document.getElementById('countdown');
+        const warnText = document.getElementById('warnText');
+        const keyArea = document.getElementById('keyArea');
+        const statusText = document.getElementById('statusText');
+
+        function startSystem() {
+            startBtn.disabled = true;
+            timerBox.classList.add('visible');
+            runTimer();
+        }
+
+        function runTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                countdownDisp.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    revealKey();
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            if (timerId && timeLeft > 0) {
+                clearInterval(timerId);
+                timeLeft = 60;
+                countdownDisp.innerText = timeLeft;
+                warnText.style.display = 'block';
+                
+                // Hide warning after 3 seconds but keep timer reset
+                setTimeout(() => {
+                    warnText.style.display = 'none';
+                }, 3000);
+
+                // Restart the timer immediately since they are back
+                runTimer();
+            }
+        }
+
+        function revealKey() {
+            statusText.innerText = "Access Granted!";
+            countdownDisp.style.display = 'none';
+            keyArea.style.display = 'block';
+        }
+
+        // DETECTION LOGIC
+        window.onblur = function() {
+            if (startBtn.disabled && timeLeft > 0) {
+                resetTimer();
+            }
+        };
+
+        // Standard Visibility API for more modern browsers
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden && startBtn.disabled && timeLeft > 0) {
+                resetTimer();
+            }
+        });
+    </script>
+</body>
+</html>
