@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistema de Auditoría</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #contenedor {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.2s;
+        }
+
+        #texto {
+            font-size: 2rem;
+            font-weight: 800;
+            user-select: none;
+            max-width: 600px;
+        }
+
+        /* Estilo de la tabla de datos final */
+        .debug-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: left;
+            width: 100%;
+            max-width: 450px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            border: 1px solid #ddd;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .label { color: #777; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
+        .valor { color: #2c3e50; font-weight: bold; word-break: break-all; margin-left: 10px; }
+
+        #contenedor:active { background-color: #ebedf0; }
+    </style>
+</head>
+<body>
+
+    <div id="contenedor" onclick="siguientePaso()">
+        <div id="texto">Toca aquí</div>
+    </div>
+
+    <script>
+        let clickCount = 0;
+
+        async function siguientePaso() {
+            const txt = document.getElementById('texto');
+            clickCount++;
+
+            if (clickCount === 1) {
+                txt.innerHTML = "¿Estás seguro?";
+            } 
+            else if (clickCount === 2) {
+                txt.innerHTML = "Una vez más...";
+            } 
+            else if (clickCount === 3) {
+                txt.innerHTML = "Analizando sistema...";
+                document.getElementById('contenedor').onclick = null; // Bloquear clicks
+                const data = await recopilarTodo();
+                mostrarData(data);
+            }
+        }
+
+        async function recopilarTodo() {
+            let info = {};
+
+            // 1. Red e IP (API externa)
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const json = await res.json();
+                info = {
+                    "IP Pública": json.ip,
+                    "Ciudad": json.city,
+                    "País": json.country_name,
+                    "Proveedor": json.org,
+                    "Lat/Long": `${json.latitude}, ${json.longitude}`,
+                    "ASN": json.asn
+                };
+            } catch (e) {
+                info["Conexión"] = "Error (AdBlock activo)";
+            }
+
+            // 2. Hardware y Software
+            info["Navegador"] = obtenerBrowser();
+            info["Plataforma"] = navigator.platform;
+            info["Cores CPU"] = navigator.hardwareConcurrency || "N/A";
+            info["RAM Est."] = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "N/A";
+            info["Resolución"] = `${window.screen.width}x${window.screen.height}`;
+            info["Batería"] = await obtenerBat();
+            info["GPU"] = obtenerRender();
+            info["Idioma"] = navigator.language;
+            info["Zona Horaria"] = IntI.DateTimeFormat().resolvedOptions().timeZone;
+
+            return info;
+        }
+
+        function obtenerBrowser() {
+            const ua = navigator.userAgent;
+            if (ua.includes("Firefox")) return "Firefox";
+            if (ua.includes("Chrome")) return "Chrome";
+            if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
+            return "Webkit / Otro";
+        }
+
+        async function obtenerBat() {
+            if (!navigator.getBattery) return "N/A";
+            const b = await navigator.getBattery();
+            return `${(b.level * 100).toFixed(0)}% ${b.charging ? '(Cargando)' : ''}`;
+        }
+
+        function obtenerRender() {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl');
+            if (!gl) return "N/A";
+            const debug = gl.getExtension('WEBGL_debug_renderer_info');
+            return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split('/')[0] : "Genérica";
+        }
+
+        function mostrarData(datos) {
+            const contenedor = document.getElementById('contenedor');
+            let html = '<div class="debug-card">';
+            html += '<h3 style="margin-top:0; color:#e67e22; font-size:1rem;">REPORTE DE DEBUG</h3>';
+            
+            for (const [key, val] of Object.entries(datos)) {
+                html += `
+                    <div class="item">
+                        <span class="label">${key}</span>
+                        <span class="valor">${val}</span>
+                    </div>`;
+            }
+            
+            html += '</div>';
+            contenedor.innerHTML = html;
+            contenedor.style.cursor = "default";
+        }
+    </script>
+
+</body>
+</html>
