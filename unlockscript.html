@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[🔒] Access Portal</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --box-bg: #121212;
+            --accent-green: #00ff41;
+            --error-red: #ff3e3e;
+            --border-color: #333;
+            --text-dim: #888;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* The Main Box */
+        #executor-box {
+            background-color: var(--box-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 320px;
+            min-height: 180px;
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar Decor */
+        .window-header {
+            background: #1a1a1a;
+            padding: 8px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .dots { display: flex; gap: 5px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #333; }
+
+        /* Content Area */
+        .content { padding: 20px; text-align: center; flex-grow: 1; }
+
+        h2 { margin: 0 0 15px 0; font-size: 1.1rem; letter-spacing: 1px; }
+
+        /* System Info Section (To fill space) */
+        #sys-info {
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+            border-left: 2px solid #222;
+            padding-left: 10px;
+        }
+
+        #console-output {
+            text-align: left;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            min-height: 10px;
+        }
+
+        .error-text { color: var(--error-red); text-shadow: 0 0 5px rgba(255, 62, 62, 0.3); }
+
+        /* ANIMATED BUTTON */
+        #ok-btn {
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 12px 30px;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+            overflow: hidden;
+        }
+
+        #ok-btn:hover {
+            background: var(--accent-green);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-green);
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
+        }
+
+        .btn-green {
+            background: var(--accent-green);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            font-weight: bold;
+            display: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .hidden { display: none !important; }
+        .fade-out { opacity: 0; transform: scale(0.9); transition: 0.4s; }
+
+    </style>
+</head>
+<body>
+
+    <div id="executor-box">
+        <div class="window-header">
+            <span>v4.2.1 - @yeaimdario</span>
+            <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+        
+        <div class="content">
+            <h2 id="title">Access Portal</h2>
+            
+            <div id="sys-info">
+                Script: PRIVATE URL<br>
+                UnlockID: 88F2-X91A-0021<br>
+                Status: Awaiting Verification...
+            </div>
+
+            <div id="console-output"></div>
+
+            <button id="ok-btn" onclick="startSequence()">Gain access to script</button>
+            <button id="unlock-btn" class="btn-green" onclick="window.open('https://www.roblox.com/game-pass/1784062038/Access-To-Script', '_blank')">🔓 UNLOCK SCRIPT (250 ROBUX)</button>
+        </div>
+    </div>
+
+    <script>
+        const box = document.getElementById('executor-box');
+        const okBtn = document.getElementById('ok-btn');
+        const unlockBtn = document.getElementById('unlock-btn');
+        const output = document.getElementById('console-output');
+
+        async function typeText(text, isError = false) {
+            const span = document.createElement('span');
+            if (isError) span.className = 'error-text';
+            output.appendChild(span);
+            
+            for (let char of text) {
+                span.textContent += char;
+                await new Promise(r => setTimeout(r, 35));
+            }
+            output.innerHTML += '\n';
+        }
+
+        async function deleteText() {
+            const content = output.innerText;
+            for (let i = content.length; i >= 0; i--) {
+                output.innerText = content.substring(0, i);
+                await new Promise(r => setTimeout(r, 15));
+            }
+        }
+
+        async function startSequence() {
+            // Button disappears
+            okBtn.classList.add('fade-out');
+            setTimeout(() => okBtn.classList.add('hidden'), 400);
+
+            // Box expands
+            setTimeout(() => {
+                box.style.width = "480px";
+                box.style.minHeight = "320px";
+            }, 200);
+
+            // Start typing
+            await new Promise(r => setTimeout(r, 800));
+            await typeText("> Checking permissions...");
+            await typeText("> Downloading important files...");
+            await new Promise(r => setTimeout(r, 400));
+            await typeText("> Checking if script is free...");
+            await new Promise(r => setTimeout(r, 1000));
+            
+            await typeText("ERROR, ACCESS IS NOT FREE.", true);
+
+            // Wait then delete
+            await new Promise(r => setTimeout(r, 2000));
+            await deleteText();
+
+            // Show final button
+            unlockBtn.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
