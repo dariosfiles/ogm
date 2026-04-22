@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Purchase</title>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  window.onload = function () {
+    Swal.fire({
+      title: "Redirecting you",
+      text: "We are redirecting you to purchase Silly Executor lifetime from reseller TuffGuy",
+      icon: "info",
+      confirmButtonText: "OK"
+    }).then(() => {
+      window.location.href = "https://sillyresell.mysellauth.com/checkout/a0f7df0fd93e0-0000011774073";
+    });
+  };
+</script>
+
+</body>
+</html>
