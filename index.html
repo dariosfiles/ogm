@@ -11,6 +11,7 @@
             --accent-pink: #ff69b4;
             --bg-color: #a5f3fc;
             --shop-bg: #ffffff;
+            --elite-red: #ff4d4d;
         }
 
         body {
@@ -21,7 +22,6 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
-            /* Prevents text/image selection globally */
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -93,14 +93,13 @@
         #bob-container {
             cursor: pointer;
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* Double check prevention for images */
             -webkit-user-drag: none;
         }
 
         #bob-image {
             width: 320px; height: auto;
             filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15));
-            pointer-events: none; /* Let the container handle the click to prevent dragging */
+            pointer-events: none;
         }
 
         .bounce-effect { animation: bounce 0.3s ease-out; }
@@ -133,6 +132,14 @@
         .item-name { display: block; font-weight: 900; font-size: 1.1rem; color: #333; }
         .item-cost { color: #27ae60; font-weight: bold; font-size: 0.95rem; }
         .item-desc { margin: 5px 0; font-size: 0.8rem; color: #777; }
+
+        /* Custom Red Item */
+        .red-item {
+            background: linear-gradient(to right, #fff5f5, #ffe0e0);
+            border: 3px solid var(--elite-red) !important;
+        }
+        .red-item .item-name { color: #c0392b; }
+        .red-item:hover:not(.disabled) { background: #fff !important; border-color: #ff0000 !important; }
 
         /* --- NOTIFICATION STACK --- */
         #notif-container {
@@ -197,7 +204,7 @@
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div id="preloader">
         <div class="spinner" id="loader-spinner"></div>
@@ -214,8 +221,7 @@
             <div id="pps-display">Points Per Second: 0</div>
         </div>
 
-        <div id="bob-container" onclick="handleBobClick(event)">
-            <!-- Added draggable="false" to prevent ghost-image dragging -->
+        <div id="bob-container" onclick="handleBobClick(event)" oncontextmenu="return false;">
             <img src="https://i.postimg.cc/SKpCCL38/bobesponjita.png" alt="Bob" id="bob-image" draggable="false">
         </div>
     </div>
@@ -270,9 +276,18 @@
             <span class="item-cost" id="cost-skin1945">Cost: 6700</span>
             <p class="item-desc" style="color: #d35400; font-weight: bold;">One time payment, fulltime 1945. (+45 Base Click!)</p>
         </div>
+
+        <!-- NEW ELITE ITEM -->
+        <div class="shop-item red-item" onclick="buyUpgrade('eggLicker')">
+            <span class="item-name">🥚 Egg Licker</span>
+            <span class="item-cost" id="cost-eggLicker">Cost: 670000</span>
+            <p class="item-desc">The ultimate tool. (+400 PPS!)</p>
+        </div>
     </div>
 
     <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
         let state = {
             points: 0,
             clickPower: 1,
@@ -284,13 +299,13 @@
                 clickPower: 15, clickUltra: 250,
                 autoClicker: 50, megaGooner: 500,
                 industrialGoon: 2500, galacticGoon: 15000,
-                boost: 1000, skin1945: 6700
+                boost: 1000, skin1945: 6700,
+                eggLicker: 670000 // New cost
             }
         };
 
         const IMG_URL_1945 = "https://i.postimg.cc/jqJ8Hckg/8qfyuc.jpg";
 
-        // --- NOTIFICATIONS ---
         function notify(msg, type = '') {
             const container = document.getElementById('notif-container');
             const n = document.createElement('div');
@@ -300,7 +315,6 @@
             setTimeout(() => n.remove(), 3000);
         }
 
-        // --- AUDIO ---
         function toggleMute() {
             state.muted = !state.muted;
             document.getElementById('audio-toggle').innerText = state.muted ? "🔇" : "🔊";
@@ -321,7 +335,6 @@
             } catch(e) {}
         }
 
-        // --- PRELOADER ---
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loader-spinner').style.display = 'none';
@@ -347,12 +360,12 @@
 
             if (state.skinOwned) {
                 const skinBtn = document.getElementById('item-skin1945');
-                skinBtn.classList.add('disabled');
+                if(skinBtn) skinBtn.classList.add('disabled');
                 document.getElementById('cost-skin1945').innerText = "OWNED";
                 document.getElementById('bob-image').src = IMG_URL_1945;
             }
 
-            localStorage.setItem('goonerBobSave_final_v4', JSON.stringify(state));
+            localStorage.setItem('goonerBobSave_final_v5', JSON.stringify(state));
         }
 
         function handleBobClick(e) {
@@ -388,6 +401,8 @@
                 else if (type === 'megaGooner') { state.autoPPS += 12; state.costs.megaGooner *= 1.35; }
                 else if (type === 'industrialGoon') { state.autoPPS += 50; state.costs.industrialGoon *= 1.4; }
                 else if (type === 'galacticGoon') { state.autoPPS += 250; state.costs.galacticGoon *= 1.4; }
+                else if (type === 'eggLicker') { state.autoPPS += 400; state.costs.eggLicker *= 1.45; }
+                
                 playSfx(600, 'triangle');
                 notify("Upgrade Purchased!", "success");
                 refreshUI();
@@ -447,11 +462,17 @@
             }
         }, 100);
 
-        const savedData = localStorage.getItem('goonerBobSave_final_v4');
+        // Load Save - Modified to merge new cost structure without resetting
+        const savedData = localStorage.getItem('goonerBobSave_final_v5');
         if (savedData) {
             const parsed = JSON.parse(savedData);
-            state = { ...state, ...parsed };
-            state.boostActive = false;
+            // Merge saved values into current state, but keep new costs if they don't exist in save
+            state = { 
+                ...state, 
+                ...parsed, 
+                costs: { ...state.costs, ...parsed.costs },
+                boostActive: false // Never load with a boost active
+            };
         }
         refreshUI();
     </script>
