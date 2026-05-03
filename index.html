@@ -13,6 +13,8 @@
             --shop-bg: #ffffff;
             --elite-red: #ff4d4d;
             --void-purple: #4b0082;
+            --oreo-brown: #3d2b1f;
+            --pork-pink: #ffb6c1;
         }
 
         body {
@@ -89,6 +91,13 @@
         .void-item { background: #1a1a1a; color: white; border: 3px solid var(--void-purple) !important; }
         .void-item .item-name { color: #d8b4fe; }
         .void-item .item-desc { color: #9ca3af; }
+        
+        .oreo-item { background: linear-gradient(to right, #3d2b1f, #5d4037); color: white; border: 3px solid #f9d71c !important; }
+        .oreo-item .item-name { color: #fff; text-shadow: 1px 1px 2px #000; }
+        .oreo-item .item-desc { color: #eee; }
+
+        .pork-item { background: linear-gradient(to right, #fff0f5, #ffb6c1); border: 3px solid var(--accent-pink) !important; }
+        .pork-item .item-name { color: #d63384; }
 
         @keyframes rainbowBorder { 0% { border-color: #ff0000; } 33% { border-color: #00ff00; } 66% { border-color: #0000ff; } 100% { border-color: #ff0000; } }
 
@@ -141,7 +150,6 @@
     <div id="shop-container">
         <h2 style="text-align: center; border-bottom: 3px solid var(--secondary-blue); padding-bottom: 10px;">The Goon Vault</h2>
         
-        <!-- CLICK UPGRADES -->
         <div class="shop-item" onclick="buyUpgrade('clickPower')">
             <span class="item-name">💪 Stronger Stroke</span>
             <span class="item-cost" id="cost-clickPower">Cost: 15</span>
@@ -154,7 +162,6 @@
             <p class="item-desc">+10 points per click.</p>
         </div>
 
-        <!-- PPS UPGRADES -->
         <div class="shop-item" onclick="buyUpgrade('autoClicker')">
             <span class="item-name">🤖 Goon Toy</span>
             <span class="item-cost" id="cost-autoClicker">Cost: 50</span>
@@ -173,13 +180,18 @@
             <p class="item-desc">+50 PPS.</p>
         </div>
 
+        <div class="shop-item" onclick="buyUpgrade('panchitoJackoff')">
+            <span class="item-name">🔥 Panchito Jackoff</span>
+            <span class="item-cost" id="cost-panchitoJackoff">Cost: 85,000</span>
+            <p class="item-desc">+1,000 PPS.</p>
+        </div>
+
         <div class="shop-item" onclick="buyUpgrade('galacticGoon')">
             <span class="item-name">🌌 Galactic Jerk Off Portal</span>
             <span class="item-cost" id="cost-galacticGoon">Cost: 15000</span>
             <p class="item-desc">+250 PPS.</p>
         </div>
 
-        <!-- SKINS / BOOSTS -->
         <div class="shop-item" onclick="buyBoost()">
             <span class="item-name">⚡ Hyper Boost (10s)</span>
             <span class="item-cost" id="cost-boost">Cost: 1000</span>
@@ -192,7 +204,6 @@
             <p class="item-desc" style="color: #d35400; font-weight: bold;">One time payment, fulltime 1945. (+45 Base Click!)</p>
         </div>
 
-        <!-- NEW LARGE EXPANSION ITEMS -->
         <div class="shop-item" onclick="buyUpgrade('supernovaStroke')" style="background: #f0faff; border-color: #00d2ff;">
             <span class="item-name">✨ Supernova Stroke</span>
             <span class="item-cost" id="cost-supernovaStroke">Cost: 100000</span>
@@ -246,6 +257,18 @@
             <span class="item-cost" id="cost-heatDeath">Cost: 1000000000</span>
             <p class="item-desc">Everything burns, everything goons. (+10,000,000 PPS!)</p>
         </div>
+
+        <div class="shop-item oreo-item" onclick="buyUpgrade('oreoPawoff')">
+            <span class="item-name">🍪 Oreo Pawoff</span>
+            <span class="item-cost" id="cost-oreoPawoff">Cost: 1,000,000,000,000,000,000</span>
+            <p class="item-desc">The ultimate cookie-infused release. (+200qa PPS!)</p>
+        </div>
+
+        <div class="shop-item pork-item" onclick="buyUpgrade('johnPorkService')">
+            <span class="item-name">🐷 John Pork's Service</span>
+            <span class="item-cost" id="cost-johnPorkService">Cost: 2,000,000,000,000,000,000,000</span>
+            <p class="item-desc">He's calling... (+1qi PPS!)</p>
+        </div>
     </div>
 
     <script>
@@ -256,15 +279,25 @@
             lastGiftTime: 0,
             costs: {
                 clickPower: 15, clickUltra: 250, autoClicker: 50, megaGooner: 500,
-                industrialGoon: 2500, galacticGoon: 15000, boost: 1000, skin1945: 6700,
+                industrialGoon: 2500, panchitoJackoff: 85000, galacticGoon: 15000, boost: 1000, skin1945: 6700,
                 supernovaStroke: 100000, orbitalGooner: 350000, eggLicker: 670000, 
                 multiverseGoon: 1500000, bombDih: 5000000, quantumTug: 12000000,
-                infiniteFinish: 50000000, goonGodAscension: 250000000, heatDeath: 1000000000
+                infiniteFinish: 50000000, goonGodAscension: 250000000, heatDeath: 1000000000,
+                oreoPawoff: 1e18, johnPorkService: 2e21
             }
         };
 
         let youtubeOutTime = 0;
         const IMG_URL_1945 = "https://i.postimg.cc/jqJ8Hckg/8qfyuc.jpg";
+
+        function format(n) {
+            if (n >= 1e21) return (n/1e21).toFixed(2) + "sx";
+            if (n >= 1e18) return (n/1e18).toFixed(2) + "qi";
+            if (n >= 1e15) return (n/1e15).toFixed(2) + "qa";
+            if (n >= 1e12) return (n/1e12).toFixed(2) + "t";
+            if (n >= 1e9) return (n/1e9).toFixed(2) + "b";
+            return Math.floor(n).toLocaleString();
+        }
 
         function notify(msg, type = '') {
             const container = document.getElementById('notif-container');
@@ -328,12 +361,12 @@
 
         function refreshUI() {
             const mult = state.boostActive ? 2 : 1;
-            document.getElementById('point-display').innerText = `${Math.floor(state.points).toLocaleString()} Goon Points`;
-            document.getElementById('pps-display').innerText = `Points Per Second: ${Math.floor(state.autoPPS * mult).toLocaleString()}`;
+            document.getElementById('point-display').innerText = `${format(state.points)} Goon Points`;
+            document.getElementById('pps-display').innerText = `Points Per Second: ${format(state.autoPPS * mult)}`;
 
             for (let key in state.costs) {
                 const el = document.getElementById(`cost-${key}`);
-                if (el) el.innerText = `Cost: ${Math.floor(state.costs[key]).toLocaleString()}`;
+                if (el) el.innerText = `Cost: ${format(state.costs[key])}`;
             }
 
             const giftBtn = document.getElementById('gift-btn');
@@ -346,7 +379,7 @@
                 document.getElementById('bob-image').src = IMG_URL_1945;
             }
 
-            localStorage.setItem('goonerBobSave_final_v8', JSON.stringify(state));
+            localStorage.setItem('goonerBobSave_final_v11', JSON.stringify(state));
         }
 
         function handleBobClick(e) {
@@ -362,7 +395,7 @@
 
             const ft = document.createElement('div');
             ft.className = 'floating-text';
-            ft.innerText = `+${totalGain}`;
+            ft.innerText = `+${format(totalGain)}`;
             ft.style.left = `${e.clientX}px`;
             ft.style.top = `${e.clientY}px`;
             document.body.appendChild(ft);
@@ -376,10 +409,11 @@
             if (state.points >= state.costs[type]) {
                 state.points -= state.costs[type];
                 const ppsGains = { 
-                    autoClicker: 1, megaGooner: 12, industrialGoon: 50, galacticGoon: 250, 
+                    autoClicker: 1, megaGooner: 12, industrialGoon: 50, panchitoJackoff: 1000, galacticGoon: 250, 
                     supernovaStroke: 1200, orbitalGooner: 2500, eggLicker: 4000, 
                     multiverseGoon: 12000, bombDih: 55000, quantumTug: 150000, 
-                    infiniteFinish: 600000, goonGodAscension: 2000000, heatDeath: 15000000 
+                    infiniteFinish: 600000, goonGodAscension: 2000000, heatDeath: 15000000,
+                    oreoPawoff: 200e15, johnPorkService: 1e18
                 };
 
                 if (type === 'clickPower') { state.clickPower += 1; state.costs.clickPower *= 1.5; }
@@ -442,7 +476,7 @@
         }, 100);
 
         window.onload = () => {
-            const rawSave = localStorage.getItem('goonerBobSave_final_v8') || localStorage.getItem('goonerBobSave_final_v7');
+            const rawSave = localStorage.getItem('goonerBobSave_final_v11') || localStorage.getItem('goonerBobSave_final_v10');
             if (rawSave) {
                 const parsed = JSON.parse(rawSave);
                 state = { ...state, ...parsed, costs: { ...state.costs, ...parsed.costs }, boostActive: false };
