@@ -12,206 +12,94 @@
             --bg-color: #a5f3fc;
             --shop-bg: #ffffff;
             --elite-red: #ff4d4d;
+            --void-purple: #4b0082;
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
             background-color: var(--bg-color);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+            display: flex; height: 100vh; overflow: hidden;
+            user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
         }
 
         /* --- PRELOADER --- */
         #preloader {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(15px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.6s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.6s ease;
         }
-
-        .spinner {
-            width: 60px; height: 60px;
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid var(--secondary-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
+        .spinner { width: 60px; height: 60px; border: 6px solid #f3f3f3; border-top: 6px solid var(--secondary-blue); border-radius: 50%; animation: spin 1s linear infinite; }
         #loader-text { margin-top: 20px; font-size: 1.8rem; font-weight: bold; color: #333; }
         .loaded-status { color: #2ecc71 !important; }
-
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- LAYOUT --- */
-        #game-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        #shop-container {
-            width: 350px;
-            background: var(--shop-bg);
-            border-left: 6px solid var(--secondary-blue);
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
-        }
-
-        #stats {
-            position: absolute;
-            top: 20px;
-            text-align: center;
-            background: white;
-            padding: 15px 40px;
-            border-radius: 50px;
-            border: 4px solid var(--secondary-blue);
-            box-shadow: 0 6px 0 var(--secondary-blue);
-        }
-
+        #game-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #shop-container { width: 380px; background: var(--shop-bg); border-left: 6px solid var(--secondary-blue); padding: 20px; overflow-y: auto; box-shadow: -5px 0 20px rgba(0,0,0,0.1); }
+        #stats { position: absolute; top: 20px; text-align: center; background: white; padding: 15px 40px; border-radius: 50px; border: 4px solid var(--secondary-blue); box-shadow: 0 6px 0 var(--secondary-blue); z-index: 10; }
         h1 { margin: 0; font-size: 2.2rem; color: #222; }
         #pps-display { font-weight: bold; color: #666; margin-top: 5px; }
 
         /* --- CHARACTER --- */
-        #bob-container {
-            cursor: pointer;
-            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            -webkit-user-drag: none;
-        }
-
-        #bob-image {
-            width: 320px; height: auto;
-            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15));
-            pointer-events: none;
-        }
-
+        #bob-container { cursor: pointer; transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); -webkit-user-drag: none; }
+        #bob-image { width: 320px; height: auto; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15)); pointer-events: none; }
         .bounce-effect { animation: bounce 0.3s ease-out; }
         @keyframes bounce { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
 
+        /* --- GIFT MODAL --- */
+        #gift-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none;
+            justify-content: center; align-items: center; z-index: 5000;
+        }
+        #gift-modal {
+            background: white; padding: 40px; border-radius: 20px; text-align: center;
+            border: 8px solid var(--primary-yellow); max-width: 400px; position: relative;
+        }
+        .subs-btn {
+            background: #ff0000; color: white; border: none; padding: 15px 30px;
+            font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer;
+            margin-top: 20px; transition: transform 0.2s; box-shadow: 0 5px 0 #b30000;
+        }
+        .subs-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b30000; }
+        .close-gift { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; color: #999; }
+
+        /* --- UI BUTTONS --- */
+        .controls-row { position: fixed; bottom: 20px; left: 20px; display: flex; gap: 15px; z-index: 1001; }
+        .ui-btn {
+            background: white; border: 3px solid var(--secondary-blue); border-radius: 50%;
+            width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.6rem; box-shadow: 0 4px 0 var(--secondary-blue);
+        }
+        .ui-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--secondary-blue); }
+        #gift-btn.cooldown { filter: grayscale(1); opacity: 0.6; }
+
         /* --- SHOP ITEMS --- */
-        .shop-item {
-            background: #f9f9f9;
-            border: 3px solid #eee;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .shop-item:hover:not(.disabled) {
-            border-color: var(--secondary-blue);
-            transform: translateY(-2px);
-            background: #fff;
-        }
-
-        .shop-item.disabled {
-            background: #e0e0e0;
-            opacity: 0.7;
-            cursor: not-allowed;
-            border-color: #bbb;
-        }
-
+        .shop-item { background: #f9f9f9; border: 3px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s ease; }
+        .shop-item:hover:not(.disabled) { border-color: var(--secondary-blue); transform: translateY(-2px); background: #fff; }
+        .shop-item.disabled { background: #e0e0e0; opacity: 0.7; cursor: not-allowed; border-color: #bbb; }
         .item-name { display: block; font-weight: 900; font-size: 1.1rem; color: #333; }
         .item-cost { color: #27ae60; font-weight: bold; font-size: 0.95rem; }
         .item-desc { margin: 5px 0; font-size: 0.8rem; color: #777; }
+        
+        .red-item { background: linear-gradient(to right, #fff5f5, #ffe0e0); border: 3px solid var(--elite-red) !important; }
+        .rainbow-item { background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 25%, #ffecd2 50%, #a1c4fd 75%, #c2e9fb 100%); border: 3px solid #666 !important; animation: rainbowBorder 3s linear infinite; }
+        .void-item { background: #1a1a1a; color: white; border: 3px solid var(--void-purple) !important; }
+        .void-item .item-name { color: #d8b4fe; }
+        .void-item .item-desc { color: #9ca3af; }
 
-        /* Specialized Items */
-        .red-item {
-            background: linear-gradient(to right, #fff5f5, #ffe0e0);
-            border: 3px solid var(--elite-red) !important;
-        }
-        .red-item:hover:not(.disabled) { border-color: #ff0000 !important; }
+        @keyframes rainbowBorder { 0% { border-color: #ff0000; } 33% { border-color: #00ff00; } 66% { border-color: #0000ff; } 100% { border-color: #ff0000; } }
 
-        .rainbow-item {
-            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 25%, #ffecd2 50%, #a1c4fd 75%, #c2e9fb 100%);
-            border: 3px solid #666 !important;
-            animation: rainbowBorder 3s linear infinite;
-        }
-        @keyframes rainbowBorder {
-            0% { border-color: #ff0000; }
-            33% { border-color: #00ff00; }
-            66% { border-color: #0000ff; }
-            100% { border-color: #ff0000; }
-        }
-
-        /* --- NOTIFICATION STACK --- */
-        #notif-container {
-            position: fixed;
-            left: 20px;
-            top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 2000;
-            pointer-events: none;
-        }
-
-        .notif {
-            background: #333;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            animation: slideIn 0.4s ease forwards, fadeOut 0.4s ease 2.5s forwards;
-            border-left: 5px solid var(--secondary-blue);
-        }
-
+        /* --- NOTIFS & TEXT --- */
+        #notif-container { position: fixed; left: 20px; top: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 6000; pointer-events: none; }
+        .notif { background: #333; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; animation: slideIn 0.4s forwards, fadeOut 0.4s 2.5s forwards; border-left: 5px solid var(--secondary-blue); }
         .notif.error { border-left-color: #ff4757; }
         .notif.success { border-left-color: #2ed573; }
-
         @keyframes slideIn { from { transform: translateX(-120%); } to { transform: translateX(0); } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateX(-20px); } }
-
-        /* --- CONTROLS --- */
-        #audio-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: white;
-            border: 3px solid var(--secondary-blue);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 0 var(--secondary-blue);
-            z-index: 1001;
-        }
-
-        #audio-toggle:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--secondary-blue); }
-
-        .floating-text {
-            position: absolute;
-            font-weight: 900;
-            font-size: 28px;
-            color: var(--secondary-blue);
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 1000;
-        }
-
+        .floating-text { position: absolute; font-weight: 900; font-size: 28px; color: var(--secondary-blue); pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
 </head>
@@ -222,17 +110,30 @@
         <div id="loader-text">Loading bobs...</div>
     </div>
 
+    <!-- GIFT POPUP -->
+    <div id="gift-overlay">
+        <div id="gift-modal">
+            <span class="close-gift" onclick="toggleGiftModal(false)">&times;</span>
+            <h2 style="margin: 0 0 10px 0; color: #333;">FREE REWARDS!</h2>
+            <p>Subscribe to the channel and wait 2 seconds to claim your massive loot!</p>
+            <button id="subs-trigger" class="subs-btn" onclick="startYoutubeTask()">SUBSCRIBE TO YOUTUBE</button>
+            <p id="reward-amount" style="color:#27ae60; font-weight:bold; margin-top:15px;">Reward: 15,000 Goon Points</p>
+        </div>
+    </div>
+
     <div id="notif-container"></div>
 
-    <div id="audio-toggle" onclick="toggleMute()">🔊</div>
+    <div class="controls-row">
+        <div id="audio-toggle" class="ui-btn" onclick="toggleMute()">🔊</div>
+        <div id="gift-btn" class="ui-btn" onclick="toggleGiftModal(true)">🎁</div>
+    </div>
 
     <div id="game-container">
         <div id="stats">
             <h1 id="point-display">0 Goon Points</h1>
             <div id="pps-display">Points Per Second: 0</div>
         </div>
-
-        <div id="bob-container" onclick="handleBobClick(event)" oncontextmenu="return false;">
+        <div id="bob-container" onclick="handleBobClick(event)">
             <img src="https://i.postimg.cc/SKpCCL38/bobesponjita.png" alt="Bob" id="bob-image" draggable="false">
         </div>
     </div>
@@ -240,6 +141,7 @@
     <div id="shop-container">
         <h2 style="text-align: center; border-bottom: 3px solid var(--secondary-blue); padding-bottom: 10px;">The Goon Vault</h2>
         
+        <!-- CLICK UPGRADES -->
         <div class="shop-item" onclick="buyUpgrade('clickPower')">
             <span class="item-name">💪 Stronger Stroke</span>
             <span class="item-cost" id="cost-clickPower">Cost: 15</span>
@@ -252,6 +154,7 @@
             <p class="item-desc">+10 points per click.</p>
         </div>
 
+        <!-- PPS UPGRADES -->
         <div class="shop-item" onclick="buyUpgrade('autoClicker')">
             <span class="item-name">🤖 Goon Toy</span>
             <span class="item-cost" id="cost-autoClicker">Cost: 50</span>
@@ -276,6 +179,7 @@
             <p class="item-desc">+250 PPS.</p>
         </div>
 
+        <!-- SKINS / BOOSTS -->
         <div class="shop-item" onclick="buyBoost()">
             <span class="item-name">⚡ Hyper Boost (10s)</span>
             <span class="item-cost" id="cost-boost">Cost: 1000</span>
@@ -288,16 +192,59 @@
             <p class="item-desc" style="color: #d35400; font-weight: bold;">One time payment, fulltime 1945. (+45 Base Click!)</p>
         </div>
 
+        <!-- NEW LARGE EXPANSION ITEMS -->
+        <div class="shop-item" onclick="buyUpgrade('supernovaStroke')" style="background: #f0faff; border-color: #00d2ff;">
+            <span class="item-name">✨ Supernova Stroke</span>
+            <span class="item-cost" id="cost-supernovaStroke">Cost: 100000</span>
+            <p class="item-desc">A flash of pure energy. (+1,000 PPS!)</p>
+        </div>
+
+        <div class="shop-item" onclick="buyUpgrade('orbitalGooner')" style="background: #eef2ff; border-color: #6366f1;">
+            <span class="item-name">🛰️ Orbital Goon Satellite</span>
+            <span class="item-cost" id="cost-orbitalGooner">Cost: 350000</span>
+            <p class="item-desc">Beaming pleasure from space. (+2,200 PPS!)</p>
+        </div>
+
         <div class="shop-item red-item" onclick="buyUpgrade('eggLicker')">
             <span class="item-name">🥚 Egg Licker</span>
             <span class="item-cost" id="cost-eggLicker">Cost: 670000</span>
             <p class="item-desc">Premium licking. (+3,000 PPS!)</p>
         </div>
 
+        <div class="shop-item" onclick="buyUpgrade('multiverseGoon')" style="background: #000; border-color: #ff00ff;">
+            <span class="item-name" style="color:#fff;">🌀 Multiverse Goon</span>
+            <span class="item-cost" id="cost-multiverseGoon">Cost: 1500000</span>
+            <p class="item-desc" style="color:#aaa;">Bobs from every dimension. (+9,000 PPS!)</p>
+        </div>
+
         <div class="shop-item rainbow-item" onclick="buyUpgrade('bombDih')">
             <span class="item-name">💣 Bomb Dih</span>
-            <span class="item-cost" id="cost-bombDih">Cost: 2500000</span>
-            <p class="item-desc">Atomic explosion. (+30,000 PPS!)</p>
+            <span class="item-cost" id="cost-bombDih">Cost: 5000000</span>
+            <p class="item-desc">Atomic explosion. (+45,000 PPS!)</p>
+        </div>
+
+        <div class="shop-item" onclick="buyUpgrade('quantumTug')" style="background: #ecfdf5; border-color: #10b981;">
+            <span class="item-name">⚛️ Quantum Tug</span>
+            <span class="item-cost" id="cost-quantumTug">Cost: 12000000</span>
+            <p class="item-desc">Existing in all states of pleasure. (+100,000 PPS!)</p>
+        </div>
+
+        <div class="shop-item red-item" onclick="buyUpgrade('infiniteFinish')" style="border-style: dashed !important;">
+            <span class="item-name">♾️ The Infinite Finish</span>
+            <span class="item-cost" id="cost-infiniteFinish">Cost: 50000000</span>
+            <p class="item-desc">The end of all things. (+350,000 PPS!)</p>
+        </div>
+
+        <div class="shop-item void-item" onclick="buyUpgrade('goonGodAscension')">
+            <span class="item-name">👼 Gooner God Ascension</span>
+            <span class="item-cost" id="cost-goonGodAscension">Cost: 250000000</span>
+            <p class="item-desc">Become the deity of the vault. (+1,500,000 PPS!)</p>
+        </div>
+
+        <div class="shop-item rainbow-item" onclick="buyUpgrade('heatDeath')" style="animation-duration: 0.5s;">
+            <span class="item-name">🔥 Heat Death of the Universe</span>
+            <span class="item-cost" id="cost-heatDeath">Cost: 1000000000</span>
+            <p class="item-desc">Everything burns, everything goons. (+10,000,000 PPS!)</p>
         </div>
     </div>
 
@@ -305,21 +252,18 @@
         document.addEventListener('contextmenu', event => event.preventDefault());
 
         let state = {
-            points: 0,
-            clickPower: 1,
-            autoPPS: 0,
-            boostActive: false,
-            skinOwned: false,
-            muted: false,
+            points: 0, clickPower: 1, autoPPS: 0, boostActive: false, skinOwned: false, muted: false,
+            lastGiftTime: 0,
             costs: {
-                clickPower: 15, clickUltra: 250,
-                autoClicker: 50, megaGooner: 500,
-                industrialGoon: 2500, galacticGoon: 15000,
-                boost: 1000, skin1945: 6700,
-                eggLicker: 670000, bombDih: 2500000
+                clickPower: 15, clickUltra: 250, autoClicker: 50, megaGooner: 500,
+                industrialGoon: 2500, galacticGoon: 15000, boost: 1000, skin1945: 6700,
+                supernovaStroke: 100000, orbitalGooner: 350000, eggLicker: 670000, 
+                multiverseGoon: 1500000, bombDih: 5000000, quantumTug: 12000000,
+                infiniteFinish: 50000000, goonGodAscension: 250000000, heatDeath: 1000000000
             }
         };
 
+        let youtubeOutTime = 0;
         const IMG_URL_1945 = "https://i.postimg.cc/jqJ8Hckg/8qfyuc.jpg";
 
         function notify(msg, type = '') {
@@ -334,7 +278,6 @@
         function toggleMute() {
             state.muted = !state.muted;
             document.getElementById('audio-toggle').innerText = state.muted ? "🔇" : "🔊";
-            notify(state.muted ? "Sound Muted" : "Sound Enabled");
         }
 
         function playSfx(freq, type = 'sine') {
@@ -351,44 +294,65 @@
             } catch(e) {}
         }
 
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loader-spinner').style.display = 'none';
-                const lt = document.getElementById('loader-text');
-                lt.innerText = "✅ Loaded!";
-                lt.classList.add('loaded-status');
-                setTimeout(() => {
-                    document.getElementById('preloader').style.opacity = '0';
-                    setTimeout(() => document.getElementById('preloader').style.display = 'none', 600);
-                }, 700);
-            }, 1800);
+        function toggleGiftModal(show) {
+            const now = Date.now();
+            if (show && now - state.lastGiftTime < 3600000) {
+                const rem = Math.ceil((3600000 - (now - state.lastGiftTime)) / 60000);
+                notify(`Wait ${rem}m for next gift!`, "error");
+                return;
+            }
+            document.getElementById('gift-overlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function startYoutubeTask() {
+            youtubeOutTime = Date.now();
+            window.open("https://youtube.com/@okaydothis", "_blank");
+        }
+
+        window.addEventListener('focus', () => {
+            if (youtubeOutTime > 0) {
+                if ((Date.now() - youtubeOutTime) / 1000 < 2) {
+                    notify("Too fast! Subscribe properly.", "error");
+                    playSfx(100, 'sawtooth');
+                } else {
+                    state.points += 15000;
+                    state.lastGiftTime = Date.now();
+                    notify("15,000 Points Claimed!", "success");
+                    playSfx(800, 'sine');
+                    toggleGiftModal(false);
+                    refreshUI();
+                }
+                youtubeOutTime = 0;
+            }
         });
 
         function refreshUI() {
             const mult = state.boostActive ? 2 : 1;
-            document.getElementById('point-display').innerText = `${Math.floor(state.points)} Goon Points`;
-            document.getElementById('pps-display').innerText = `Points Per Second: ${Math.floor(state.autoPPS * mult)}`;
+            document.getElementById('point-display').innerText = `${Math.floor(state.points).toLocaleString()} Goon Points`;
+            document.getElementById('pps-display').innerText = `Points Per Second: ${Math.floor(state.autoPPS * mult).toLocaleString()}`;
 
             for (let key in state.costs) {
                 const el = document.getElementById(`cost-${key}`);
-                if (el) el.innerText = `Cost: ${Math.floor(state.costs[key])}`;
+                if (el) el.innerText = `Cost: ${Math.floor(state.costs[key]).toLocaleString()}`;
             }
 
+            const giftBtn = document.getElementById('gift-btn');
+            if (Date.now() - state.lastGiftTime < 3600000) giftBtn.classList.add('cooldown');
+            else giftBtn.classList.remove('cooldown');
+
             if (state.skinOwned) {
-                const skinBtn = document.getElementById('item-skin1945');
-                if(skinBtn) skinBtn.classList.add('disabled');
+                document.getElementById('item-skin1945').classList.add('disabled');
                 document.getElementById('cost-skin1945').innerText = "OWNED";
                 document.getElementById('bob-image').src = IMG_URL_1945;
             }
 
-            localStorage.setItem('goonerBobSave_final_v6', JSON.stringify(state));
+            localStorage.setItem('goonerBobSave_final_v8', JSON.stringify(state));
         }
 
         function handleBobClick(e) {
             const mult = state.boostActive ? 2 : 1;
             const base = state.skinOwned ? 45 : 1;
             const totalGain = (base + (state.clickPower - 1)) * mult;
-
             state.points += totalGain;
             
             const container = document.getElementById('bob-container');
@@ -411,14 +375,19 @@
         function buyUpgrade(type) {
             if (state.points >= state.costs[type]) {
                 state.points -= state.costs[type];
+                const ppsGains = { 
+                    autoClicker: 1, megaGooner: 12, industrialGoon: 50, galacticGoon: 250, 
+                    supernovaStroke: 1200, orbitalGooner: 2500, eggLicker: 4000, 
+                    multiverseGoon: 12000, bombDih: 55000, quantumTug: 150000, 
+                    infiniteFinish: 600000, goonGodAscension: 2000000, heatDeath: 15000000 
+                };
+
                 if (type === 'clickPower') { state.clickPower += 1; state.costs.clickPower *= 1.5; }
                 else if (type === 'clickUltra') { state.clickPower += 10; state.costs.clickUltra *= 1.6; }
-                else if (type === 'autoClicker') { state.autoPPS += 1; state.costs.autoClicker *= 1.35; }
-                else if (type === 'megaGooner') { state.autoPPS += 12; state.costs.megaGooner *= 1.35; }
-                else if (type === 'industrialGoon') { state.autoPPS += 50; state.costs.industrialGoon *= 1.4; }
-                else if (type === 'galacticGoon') { state.autoPPS += 250; state.costs.galacticGoon *= 1.4; }
-                else if (type === 'eggLicker') { state.autoPPS += 3000; state.costs.eggLicker *= 1.45; }
-                else if (type === 'bombDih') { state.autoPPS += 30000; state.costs.bombDih *= 1.5; }
+                else if (ppsGains[type]) { 
+                    state.autoPPS += ppsGains[type]; 
+                    state.costs[type] *= 1.4; 
+                }
                 
                 playSfx(600, 'triangle');
                 notify("Upgrade Purchased!", "success");
@@ -438,22 +407,17 @@
                 notify("LEGENDARY SKIN UNLOCKED!", "success");
                 refreshUI();
             } else {
-                notify("Insufficient funds for 1945!", "error");
-                playSfx(150, 'sawtooth');
+                notify("Insufficient funds!", "error");
             }
         }
 
         function buyBoost() {
-            if (state.boostActive) {
-                notify("Boost already active!", "error");
-                return;
-            }
+            if (state.boostActive) return;
             if (state.points >= state.costs.boost) {
                 state.points -= state.costs.boost;
                 state.boostActive = true;
                 playSfx(800, 'square');
                 notify("HYPER BOOST ACTIVATED!", "success");
-                
                 let time = 10;
                 const bText = document.getElementById('cost-boost');
                 const timer = setInterval(() => {
@@ -466,8 +430,6 @@
                         refreshUI();
                     }
                 }, 1000);
-            } else {
-                notify("Need more points for Boost!", "error");
             }
         }
 
@@ -479,23 +441,19 @@
             }
         }, 100);
 
-        // --- LEGACY MIGRATION & LOADING ---
-        const v4 = localStorage.getItem('goonerBobSave_final_v4');
-        const v5 = localStorage.getItem('goonerBobSave_final_v5');
-        const v6 = localStorage.getItem('goonerBobSave_final_v6');
-
-        let rawSave = v6 || v5 || v4;
-
-        if (rawSave) {
-            const parsed = JSON.parse(rawSave);
-            state = { 
-                ...state, 
-                ...parsed, 
-                costs: { ...state.costs, ...parsed.costs },
-                boostActive: false
-            };
-        }
-        refreshUI();
+        window.onload = () => {
+            const rawSave = localStorage.getItem('goonerBobSave_final_v8') || localStorage.getItem('goonerBobSave_final_v7');
+            if (rawSave) {
+                const parsed = JSON.parse(rawSave);
+                state = { ...state, ...parsed, costs: { ...state.costs, ...parsed.costs }, boostActive: false };
+            }
+            setTimeout(() => {
+                document.getElementById('loader-spinner').style.display = 'none';
+                document.getElementById('loader-text').innerText = "✅ Ready!";
+                setTimeout(() => document.getElementById('preloader').style.display = 'none', 700);
+            }, 1000);
+            refreshUI();
+        };
     </script>
 </body>
 </html>
