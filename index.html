@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gooner Bob | ✅</title>
+    <title>Gooner Bob Clicker</title>
     <style>
         :root {
             --primary-yellow: #f9d71c;
@@ -21,7 +21,11 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
+            /* Prevents text/image selection globally */
             user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         /* --- PRELOADER --- */
@@ -89,11 +93,14 @@
         #bob-container {
             cursor: pointer;
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Double check prevention for images */
+            -webkit-user-drag: none;
         }
 
         #bob-image {
             width: 320px; height: auto;
             filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15));
+            pointer-events: none; /* Let the container handle the click to prevent dragging */
         }
 
         .bounce-effect { animation: bounce 0.3s ease-out; }
@@ -208,7 +215,8 @@
         </div>
 
         <div id="bob-container" onclick="handleBobClick(event)">
-            <img src="https://i.postimg.cc/SKpCCL38/bobesponjita.png" alt="Bob" id="bob-image">
+            <!-- Added draggable="false" to prevent ghost-image dragging -->
+            <img src="https://i.postimg.cc/SKpCCL38/bobesponjita.png" alt="Bob" id="bob-image" draggable="false">
         </div>
     </div>
 
