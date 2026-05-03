@@ -133,13 +133,24 @@
         .item-cost { color: #27ae60; font-weight: bold; font-size: 0.95rem; }
         .item-desc { margin: 5px 0; font-size: 0.8rem; color: #777; }
 
-        /* Custom Red Item */
+        /* Specialized Items */
         .red-item {
             background: linear-gradient(to right, #fff5f5, #ffe0e0);
             border: 3px solid var(--elite-red) !important;
         }
-        .red-item .item-name { color: #c0392b; }
-        .red-item:hover:not(.disabled) { background: #fff !important; border-color: #ff0000 !important; }
+        .red-item:hover:not(.disabled) { border-color: #ff0000 !important; }
+
+        .rainbow-item {
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 25%, #ffecd2 50%, #a1c4fd 75%, #c2e9fb 100%);
+            border: 3px solid #666 !important;
+            animation: rainbowBorder 3s linear infinite;
+        }
+        @keyframes rainbowBorder {
+            0% { border-color: #ff0000; }
+            33% { border-color: #00ff00; }
+            66% { border-color: #0000ff; }
+            100% { border-color: #ff0000; }
+        }
 
         /* --- NOTIFICATION STACK --- */
         #notif-container {
@@ -277,11 +288,16 @@
             <p class="item-desc" style="color: #d35400; font-weight: bold;">One time payment, fulltime 1945. (+45 Base Click!)</p>
         </div>
 
-        <!-- NEW ELITE ITEM -->
         <div class="shop-item red-item" onclick="buyUpgrade('eggLicker')">
             <span class="item-name">🥚 Egg Licker</span>
             <span class="item-cost" id="cost-eggLicker">Cost: 670000</span>
-            <p class="item-desc">The ultimate tool. (+400 PPS!)</p>
+            <p class="item-desc">Premium licking. (+3,000 PPS!)</p>
+        </div>
+
+        <div class="shop-item rainbow-item" onclick="buyUpgrade('bombDih')">
+            <span class="item-name">💣 Bomb Dih</span>
+            <span class="item-cost" id="cost-bombDih">Cost: 2500000</span>
+            <p class="item-desc">Atomic explosion. (+30,000 PPS!)</p>
         </div>
     </div>
 
@@ -300,7 +316,7 @@
                 autoClicker: 50, megaGooner: 500,
                 industrialGoon: 2500, galacticGoon: 15000,
                 boost: 1000, skin1945: 6700,
-                eggLicker: 670000 // New cost
+                eggLicker: 670000, bombDih: 2500000
             }
         };
 
@@ -365,7 +381,7 @@
                 document.getElementById('bob-image').src = IMG_URL_1945;
             }
 
-            localStorage.setItem('goonerBobSave_final_v5', JSON.stringify(state));
+            localStorage.setItem('goonerBobSave_final_v6', JSON.stringify(state));
         }
 
         function handleBobClick(e) {
@@ -401,7 +417,8 @@
                 else if (type === 'megaGooner') { state.autoPPS += 12; state.costs.megaGooner *= 1.35; }
                 else if (type === 'industrialGoon') { state.autoPPS += 50; state.costs.industrialGoon *= 1.4; }
                 else if (type === 'galacticGoon') { state.autoPPS += 250; state.costs.galacticGoon *= 1.4; }
-                else if (type === 'eggLicker') { state.autoPPS += 400; state.costs.eggLicker *= 1.45; }
+                else if (type === 'eggLicker') { state.autoPPS += 3000; state.costs.eggLicker *= 1.45; }
+                else if (type === 'bombDih') { state.autoPPS += 30000; state.costs.bombDih *= 1.5; }
                 
                 playSfx(600, 'triangle');
                 notify("Upgrade Purchased!", "success");
@@ -462,16 +479,20 @@
             }
         }, 100);
 
-        // Load Save - Modified to merge new cost structure without resetting
-        const savedData = localStorage.getItem('goonerBobSave_final_v5');
-        if (savedData) {
-            const parsed = JSON.parse(savedData);
-            // Merge saved values into current state, but keep new costs if they don't exist in save
+        // --- LEGACY MIGRATION & LOADING ---
+        const v4 = localStorage.getItem('goonerBobSave_final_v4');
+        const v5 = localStorage.getItem('goonerBobSave_final_v5');
+        const v6 = localStorage.getItem('goonerBobSave_final_v6');
+
+        let rawSave = v6 || v5 || v4;
+
+        if (rawSave) {
+            const parsed = JSON.parse(rawSave);
             state = { 
                 ...state, 
                 ...parsed, 
                 costs: { ...state.costs, ...parsed.costs },
-                boostActive: false // Never load with a boost active
+                boostActive: false
             };
         }
         refreshUI();
