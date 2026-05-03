@@ -1,255 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OGMarket</title>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gooner Bob | ✅</title>
+    <style>
+        :root {
+            --primary-yellow: #f9d71c;
+            --secondary-blue: #008cff;
+            --accent-pink: #ff69b4;
+            --bg-color: #a5f3fc;
+            --shop-bg: #ffffff;
+        }
 
-    :root {
-      --bg: #0a0a0a;
-      --surface: #111111;
-      --card: #141414;
-      --border: #222222;
-      --accent: #c8ff00;
-      --text: #e8e8e8;
-      --muted: #555;
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+            background-color: var(--bg-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
 
-    html, body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-    }
+        /* --- PRELOADER --- */
+        #preloader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease;
+        }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10,10,10,0.93);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 2.5rem;
-      height: 60px;
-      gap: 2rem;
-    }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--secondary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
-    .logo {
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-      color: var(--text);
-    }
+        #loader-text { margin-top: 20px; font-size: 1.8rem; font-weight: bold; color: #333; }
+        .loaded-status { color: #2ecc71 !important; }
 
-    .logo span { color: var(--accent); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    .search-wrap {
-      flex: 1;
-      max-width: 360px;
-      position: relative;
-    }
+        /* --- LAYOUT --- */
+        #game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
 
-    .search-wrap svg {
-      position: absolute;
-      left: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      pointer-events: none;
-      width: 15px;
-      height: 15px;
-    }
+        #shop-container {
+            width: 350px;
+            background: var(--shop-bg);
+            border-left: 6px solid var(--secondary-blue);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+        }
 
-    .search-wrap input {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.85rem;
-      padding: 0.5rem 1rem 0.5rem 2.4rem;
-      border-radius: 6px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+        #stats {
+            position: absolute;
+            top: 20px;
+            text-align: center;
+            background: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: 4px solid var(--secondary-blue);
+            box-shadow: 0 6px 0 var(--secondary-blue);
+        }
 
-    .search-wrap input::placeholder { color: var(--muted); }
-    .search-wrap input:focus { border-color: #444; }
+        h1 { margin: 0; font-size: 2.2rem; color: #222; }
+        #pps-display { font-weight: bold; color: #666; margin-top: 5px; }
 
-    main {
-      padding: 3rem 2.5rem 5rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
+        /* --- CHARACTER --- */
+        #bob-container {
+            cursor: pointer;
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-    .section-label {
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 1.8rem;
-    }
+        #bob-image {
+            width: 320px; height: auto;
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15));
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 1.4rem;
-      margin-bottom: 3rem;
-    }
+        .bounce-effect { animation: bounce 0.3s ease-out; }
+        @keyframes bounce { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.3s cubic-bezier(.22,.61,.36,1), border-color 0.3s, box-shadow 0.3s;
-    }
+        /* --- SHOP ITEMS --- */
+        .shop-item {
+            background: #f9f9f9;
+            border: 3px solid #eee;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-    .card:hover {
-      transform: translateY(-5px) scale(1.012);
-      border-color: #333;
-      box-shadow: 0 14px 36px rgba(0,0,0,0.55);
-    }
+        .shop-item:hover:not(.disabled) {
+            border-color: var(--secondary-blue);
+            transform: translateY(-2px);
+            background: #fff;
+        }
 
-    .card-img {
-      width: 100%;
-      aspect-ratio: 1/1;
-      object-fit: cover;
-      display: block;
-      background: #0f0f0f;
-      transition: filter 0.3s;
-    }
+        .shop-item.disabled {
+            background: #e0e0e0;
+            opacity: 0.7;
+            cursor: not-allowed;
+            border-color: #bbb;
+        }
 
-    .card:hover .card-img { filter: brightness(1.06); }
+        .item-name { display: block; font-weight: 900; font-size: 1.1rem; color: #333; }
+        .item-cost { color: #27ae60; font-weight: bold; font-size: 0.95rem; }
+        .item-desc { margin: 5px 0; font-size: 0.8rem; color: #777; }
 
-    .card-body {
-      padding: 0.9rem 1.1rem 1.1rem;
-    }
+        /* --- NOTIFICATION STACK --- */
+        #notif-container {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2000;
+            pointer-events: none;
+        }
 
-    .card-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-    }
+        .notif {
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            animation: slideIn 0.4s ease forwards, fadeOut 0.4s ease 2.5s forwards;
+            border-left: 5px solid var(--secondary-blue);
+        }
 
-    .card-price {
-      font-size: 0.85rem;
-      color: var(--accent);
-      font-weight: 500;
-    }
+        .notif.error { border-left-color: #ff4757; }
+        .notif.success { border-left-color: #2ed573; }
 
-    .oos {
-      font-size: 0.8rem;
-      color: var(--muted);
-      padding-top: 1.4rem;
-      border-top: 1px solid var(--border);
-    }
+        @keyframes slideIn { from { transform: translateX(-120%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateX(-20px); } }
 
-    /* Customizing SweetAlert internals to match your site */
-    .swal2-popup {
-      border: 1px solid var(--border) !important;
-      border-radius: 15px !important;
-    }
-  </style>
+        /* --- CONTROLS --- */
+        #audio-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            border: 3px solid var(--secondary-blue);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 0 var(--secondary-blue);
+            z-index: 1001;
+        }
+
+        #audio-toggle:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--secondary-blue); }
+
+        .floating-text {
+            position: absolute;
+            font-weight: 900;
+            font-size: 28px;
+            color: var(--secondary-blue);
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+    </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">OG<span>Market</span></div>
-    <div class="search-wrap">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input type="text" id="searchInput" placeholder="Search accounts…" autocomplete="off" />
-    </div>
-  </header>
-
-  <main>
-    <div class="section-label">Featured brainrots</div>
-
-    <div class="grid">
-      <div class="card" onclick="triggerStockAlert('Meowl')">
-        <img class="card-img" src="https://files.catbox.moe/olmrnj.PNG" alt="Meowl" />
-        <div class="card-body">
-          <div class="card-name">Meowl</div>
-          <div class="card-price">100€</div>
-        </div>
-      </div>
-
-      <div class="card" onclick="triggerStockAlert('Skibidi Toilet')">
-        <img class="card-img" src="https://files.catbox.moe/qv78mo.PNG" alt="Skibidi Toilet" />
-        <div class="card-body">
-          <div class="card-name">Skibidi Toilet</div>
-          <div class="card-price">78€</div>
-        </div>
-      </div>
+    <div id="preloader">
+        <div class="spinner" id="loader-spinner"></div>
+        <div id="loader-text">Loading bobs...</div>
     </div>
 
-    <div class="oos">Sorry, we ran out of stock :(</div>
-  </main>
+    <div id="notif-container"></div>
 
-  <script>
-    const input = document.getElementById('searchInput');
+    <div id="audio-toggle" onclick="toggleMute()">🔊</div>
 
-    // Reusable custom Toast/Alert config
-    const CustomAlert = Swal.mixin({
-      background: '#141414',
-      color: '#e8e8e8',
-      confirmButtonColor: '#c8ff00',
-      buttonsStyling: true,
-      customClass: {
-        confirmButton: 'custom-swal-button'
-      }
-    });
+    <div id="game-container">
+        <div id="stats">
+            <h1 id="point-display">0 Goon Points</h1>
+            <div id="pps-display">Points Per Second: 0</div>
+        </div>
 
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault(); // Prevents instant closing/page refresh
+        <div id="bob-container" onclick="handleBobClick(event)">
+            <img src="https://i.postimg.cc/SKpCCL38/bobesponjita.png" alt="Bob" id="bob-image">
+        </div>
+    </div>
+
+    <div id="shop-container">
+        <h2 style="text-align: center; border-bottom: 3px solid var(--secondary-blue); padding-bottom: 10px;">The Goon Vault</h2>
         
-        const val = input.value.trim();
-        if (!val) return;
+        <div class="shop-item" onclick="buyUpgrade('clickPower')">
+            <span class="item-name">💪 Stronger Stroke</span>
+            <span class="item-cost" id="cost-clickPower">Cost: 15</span>
+            <p class="item-desc">+1 point per click.</p>
+        </div>
 
-        if (val.toLowerCase() === 'hotspotsitos') {
-          CustomAlert.fire({
-            title: 'Account Found!',
-            text: 'Showing profile...',
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false,
-            willClose: () => {
-              window.location.href = 'https://ogmarket.online/profiles/hotspotsitos';
+        <div class="shop-item" onclick="buyUpgrade('clickUltra')">
+            <span class="item-name">🧤 Turbo Goon</span>
+            <span class="item-cost" id="cost-clickUltra">Cost: 250</span>
+            <p class="item-desc">+10 points per click.</p>
+        </div>
+
+        <div class="shop-item" onclick="buyUpgrade('autoClicker')">
+            <span class="item-name">🤖 Goon Toy</span>
+            <span class="item-cost" id="cost-autoClicker">Cost: 50</span>
+            <p class="item-desc">+1 PPS.</p>
+        </div>
+
+        <div class="shop-item" onclick="buyUpgrade('megaGooner')">
+            <span class="item-name">🌊 Fap Waves</span>
+            <span class="item-cost" id="cost-megaGooner">Cost: 500</span>
+            <p class="item-desc">+12 PPS.</p>
+        </div>
+
+        <div class="shop-item" onclick="buyUpgrade('industrialGoon')">
+            <span class="item-name">🏭 Cum Factory</span>
+            <span class="item-cost" id="cost-industrialGoon">Cost: 2500</span>
+            <p class="item-desc">+50 PPS.</p>
+        </div>
+
+        <div class="shop-item" onclick="buyUpgrade('galacticGoon')">
+            <span class="item-name">🌌 Galactic Jerk Off Portal</span>
+            <span class="item-cost" id="cost-galacticGoon">Cost: 15000</span>
+            <p class="item-desc">+250 PPS.</p>
+        </div>
+
+        <div class="shop-item" onclick="buyBoost()">
+            <span class="item-name">⚡ Hyper Boost (10s)</span>
+            <span class="item-cost" id="cost-boost">Cost: 1000</span>
+            <p class="item-desc">2x Multiplier for 10 seconds.</p>
+        </div>
+
+        <div id="item-skin1945" class="shop-item" onclick="buySkin1945()" style="background: linear-gradient(to right, #fff, #ffeaa7); border: 3px solid #fdcb6e;">
+            <span class="item-name">🎖️ Hitler Bob Skin</span>
+            <span class="item-cost" id="cost-skin1945">Cost: 6700</span>
+            <p class="item-desc" style="color: #d35400; font-weight: bold;">One time payment, fulltime 1945. (+45 Base Click!)</p>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            points: 0,
+            clickPower: 1,
+            autoPPS: 0,
+            boostActive: false,
+            skinOwned: false,
+            muted: false,
+            costs: {
+                clickPower: 15, clickUltra: 250,
+                autoClicker: 50, megaGooner: 500,
+                industrialGoon: 2500, galacticGoon: 15000,
+                boost: 1000, skin1945: 6700
             }
-          });
-        } else {
-          CustomAlert.fire({
-            title: 'Search Failed',
-            text: `No account named "${val}" exists in our database.`,
-            icon: 'error',
-            iconColor: '#ff4444',
-            confirmButtonText: 'Try Again'
-          });
-        }
-      }
-    });
+        };
 
-    // Added a function for clicking the cards
-    function triggerStockAlert(name) {
-      CustomAlert.fire({
-        title: name,
-        text: 'Item locked by seller',
-        icon: 'info',
-        iconColor: '#c8ff00'
-      });
-    }
-  </script>
+        const IMG_URL_1945 = "https://i.postimg.cc/jqJ8Hckg/8qfyuc.jpg";
+
+        // --- NOTIFICATIONS ---
+        function notify(msg, type = '') {
+            const container = document.getElementById('notif-container');
+            const n = document.createElement('div');
+            n.className = `notif ${type}`;
+            n.innerText = msg;
+            container.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        }
+
+        // --- AUDIO ---
+        function toggleMute() {
+            state.muted = !state.muted;
+            document.getElementById('audio-toggle').innerText = state.muted ? "🔇" : "🔊";
+            notify(state.muted ? "Sound Muted" : "Sound Enabled");
+        }
+
+        function playSfx(freq, type = 'sine') {
+            if (state.muted) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const g = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.15);
+                osc.connect(g); g.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.15);
+            } catch(e) {}
+        }
+
+        // --- PRELOADER ---
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader-spinner').style.display = 'none';
+                const lt = document.getElementById('loader-text');
+                lt.innerText = "✅ Loaded!";
+                lt.classList.add('loaded-status');
+                setTimeout(() => {
+                    document.getElementById('preloader').style.opacity = '0';
+                    setTimeout(() => document.getElementById('preloader').style.display = 'none', 600);
+                }, 700);
+            }, 1800);
+        });
+
+        function refreshUI() {
+            const mult = state.boostActive ? 2 : 1;
+            document.getElementById('point-display').innerText = `${Math.floor(state.points)} Goon Points`;
+            document.getElementById('pps-display').innerText = `Points Per Second: ${Math.floor(state.autoPPS * mult)}`;
+
+            for (let key in state.costs) {
+                const el = document.getElementById(`cost-${key}`);
+                if (el) el.innerText = `Cost: ${Math.floor(state.costs[key])}`;
+            }
+
+            if (state.skinOwned) {
+                const skinBtn = document.getElementById('item-skin1945');
+                skinBtn.classList.add('disabled');
+                document.getElementById('cost-skin1945').innerText = "OWNED";
+                document.getElementById('bob-image').src = IMG_URL_1945;
+            }
+
+            localStorage.setItem('goonerBobSave_final_v4', JSON.stringify(state));
+        }
+
+        function handleBobClick(e) {
+            const mult = state.boostActive ? 2 : 1;
+            const base = state.skinOwned ? 45 : 1;
+            const totalGain = (base + (state.clickPower - 1)) * mult;
+
+            state.points += totalGain;
+            
+            const container = document.getElementById('bob-container');
+            container.classList.remove('bounce-effect');
+            void container.offsetWidth;
+            container.classList.add('bounce-effect');
+
+            const ft = document.createElement('div');
+            ft.className = 'floating-text';
+            ft.innerText = `+${totalGain}`;
+            ft.style.left = `${e.clientX}px`;
+            ft.style.top = `${e.clientY}px`;
+            document.body.appendChild(ft);
+            setTimeout(() => ft.remove(), 800);
+
+            playSfx(400);
+            refreshUI();
+        }
+
+        function buyUpgrade(type) {
+            if (state.points >= state.costs[type]) {
+                state.points -= state.costs[type];
+                if (type === 'clickPower') { state.clickPower += 1; state.costs.clickPower *= 1.5; }
+                else if (type === 'clickUltra') { state.clickPower += 10; state.costs.clickUltra *= 1.6; }
+                else if (type === 'autoClicker') { state.autoPPS += 1; state.costs.autoClicker *= 1.35; }
+                else if (type === 'megaGooner') { state.autoPPS += 12; state.costs.megaGooner *= 1.35; }
+                else if (type === 'industrialGoon') { state.autoPPS += 50; state.costs.industrialGoon *= 1.4; }
+                else if (type === 'galacticGoon') { state.autoPPS += 250; state.costs.galacticGoon *= 1.4; }
+                playSfx(600, 'triangle');
+                notify("Upgrade Purchased!", "success");
+                refreshUI();
+            } else {
+                notify("Not enough Goon Points!", "error");
+                playSfx(150, 'sawtooth');
+            }
+        }
+
+        function buySkin1945() {
+            if (state.skinOwned) return;
+            if (state.points >= state.costs.skin1945) {
+                state.points -= state.costs.skin1945;
+                state.skinOwned = true;
+                playSfx(200, 'sawtooth');
+                notify("LEGENDARY SKIN UNLOCKED!", "success");
+                refreshUI();
+            } else {
+                notify("Insufficient funds for 1945!", "error");
+                playSfx(150, 'sawtooth');
+            }
+        }
+
+        function buyBoost() {
+            if (state.boostActive) {
+                notify("Boost already active!", "error");
+                return;
+            }
+            if (state.points >= state.costs.boost) {
+                state.points -= state.costs.boost;
+                state.boostActive = true;
+                playSfx(800, 'square');
+                notify("HYPER BOOST ACTIVATED!", "success");
+                
+                let time = 10;
+                const bText = document.getElementById('cost-boost');
+                const timer = setInterval(() => {
+                    time--;
+                    bText.innerText = `ACTIVE (${time}s)`;
+                    if(time <= 0) {
+                        clearInterval(timer);
+                        state.boostActive = false;
+                        notify("Boost Expired");
+                        refreshUI();
+                    }
+                }, 1000);
+            } else {
+                notify("Need more points for Boost!", "error");
+            }
+        }
+
+        setInterval(() => {
+            const mult = state.boostActive ? 2 : 1;
+            if (state.autoPPS > 0) {
+                state.points += (state.autoPPS * mult) / 10;
+                refreshUI();
+            }
+        }, 100);
+
+        const savedData = localStorage.getItem('goonerBobSave_final_v4');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            state = { ...state, ...parsed };
+            state.boostActive = false;
+        }
+        refreshUI();
+    </script>
 </body>
 </html>
