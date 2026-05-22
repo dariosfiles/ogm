@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Version Checker</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background: #121212; 
+            color: #e0e0e0; 
+            gap: 30px; 
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .box {
+            background: #1e1e1e; 
+            padding: 25px; 
+            border-radius: 16px; 
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #333; 
+            text-align: center; 
+            width: 220px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .box:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            box-shadow: 0 10px 20px rgba(0, 162, 255, 0.2); 
+            border-color: #00a2ff;
+        }
+        .label { 
+            font-size: 0.9rem;
+            font-weight: 600; 
+            margin-bottom: 12px; 
+            display: block; 
+            color: #888; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .version { 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 1rem; 
+            color: #00a2ff;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="box" onclick="copyToClipboard('win-ver')">
+            <span class="label">Windows Version</span>
+            <div id="win-ver" class="version">Fetching...</div>
+        </div>
+
+        <div class="box" onclick="copyToClipboard('mac-ver')">
+            <span class="label">Mac Version</span>
+            <div id="mac-ver" class="version">Fetching...</div>
+        </div>
+    </div>
+
+    <script>
+        async function getVersion() {
+            const proxy = 'https://api.allorigins.win/raw?url=';
+            const url = 'https://setup.roblox.com/version';
+            try {
+                const response = await fetch(proxy + encodeURIComponent(url));
+                const version = await response.text();
+                // The API returns the string exactly as "version-[hash]"
+                document.getElementById('win-ver').innerText = version;
+                document.getElementById('mac-ver').innerText = version;
+            } catch (error) {
+                document.getElementById('win-ver').innerText = "Failed";
+                document.getElementById('mac-ver').innerText = "Failed";
+            }
+        }
+
+        function copyToClipboard(id) {
+            const text = document.getElementById(id).innerText;
+            if(text !== "Fetching..." && text !== "Failed") {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("Copied to clipboard: " + text);
+                });
+            }
+        }
+
+        getVersion();
+    </script>
+</body>
+</html>
