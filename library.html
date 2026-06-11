@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoonGG - Library</title>
+    <style>
+        :root {
+            --bg-darker: #171a21;
+            --bg-main: #1b2838;
+            --bg-sidebar: #2a475e;
+            --text-color: #c7d5e0;
+            --steam-blue: #66c0f4;
+            --steam-green: #5c7e10;
+            --steam-green-hover: #78a317;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Motiva Sans", Sans-Serif, Arial, Helvetica;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-main);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        /* Platform Layout */
+        #app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Bar */
+        header {
+            background-color: var(--bg-darker);
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #233c51;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .logo span {
+            color: var(--steam-blue);
+        }
+
+        /* Main Content Split */
+        .main-view {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 260px;
+            background-color: #213244;
+            border-right: 1px solid #101822;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8f98a0;
+            padding-left: 10px;
+            margin-bottom: 5px;
+        }
+
+        .game-list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .game-list-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .game-list-item.active {
+            background: rgba(102, 192, 244, 0.1);
+            border-left-color: var(--steam-blue);
+            color: #fff;
+        }
+
+        /* Detail Dashboard */
+        main {
+            flex: 1;
+            background: linear-gradient(to bottom, #1b2838 0%, #141f2c 100%);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .game-banner {
+            height: 300px;
+            background: linear-gradient(to bottom, rgba(27, 40, 56, 0.4), var(--bg-main)), 
+                        url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 40px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .game-title-hero {
+            font-size: 48px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-weight: 800;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background-color: #202d39;
+            padding: 25px 40px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            border-bottom: 1px solid #2b3b4b;
+        }
+
+        .btn-play {
+            background: linear-gradient(to right, #75b022 5%, #588a1b 95%);
+            color: #fff;
+            border: none;
+            padding: 15px 60px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(0,0,0,0.4);
+            transition: background 0.2s;
+        }
+
+        .btn-play:hover {
+            background: linear-gradient(to right, #8ed629 5%, #69a221 95%);
+        }
+
+        .game-status {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #8f98a0;
+            text-transform: uppercase;
+        }
+
+        .status-value {
+            font-size: 16px;
+            color: #fff;
+        }
+
+        /* Game Detail Content Details */
+        .game-details {
+            padding: 40px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #acb2b8;
+            max-width: 800px;
+        }
+
+        /* Fullscreen Game Canvas Overlay Container Split Layout */
+        #game-canvas-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #0b0e14;
+            z-index: 100;
+            user-select: none;
+            flex-direction: row;
+        }
+
+        /* Left Side: Clicker Gameplay */
+        .game-play-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-right: 2px solid #1a2531;
+        }
+
+        /* Right Side: Upgrade Shop Dashboard */
+        .game-shop-area {
+            width: 350px;
+            background-color: #121c27;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .shop-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #233c51;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .shop-item {
+            background: #1b2838;
+            border: 1px solid #2a475e;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .shop-item:hover {
+            background: #24354b;
+            border-color: var(--steam-blue);
+        }
+
+        .shop-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #141f2c;
+            border-color: #1b2838;
+        }
+
+        /* Special Styling for OP Tier Item */
+        .shop-item.op-tier {
+            border: 1px dashed #ff4444;
+            background: linear-gradient(135deg, #2c1212 0%, #1b2838 100%);
+        }
+        .shop-item.op-tier:hover {
+            border-color: #ffaa11;
+            background: linear-gradient(135deg, #3d1a1a 0%, #24354b 100%);
+        }
+        .shop-item.op-tier .cost-val {
+            color: #ff4444 !important;
+            text-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
+        }
+
+        .item-info h4 {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .item-info p {
+            font-size: 12px;
+            color: #8f98a0;
+        }
+
+        .item-cost {
+            text-align: right;
+        }
+
+        .cost-val {
+            color: #eed71a;
+            font-weight: bold;
+            font-size: 15px;
+            display: block;
+        }
+
+        .count-val {
+            font-size: 12px;
+            color: var(--steam-blue);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #3a3f4d;
+            color: #c7d5e0;
+            border: 1px solid #4f5362;
+            padding: 10px 24px;
+            cursor: pointer;
+            font-weight: normal;
+            border-radius: 3px;
+            font-size: 14px;
+            transition: background-color 0.2s, color 0.2s;
+            z-index: 101;
+        }
+        
+        .close-btn:hover { 
+            background: #cd5c5c; 
+            color: #fff;
+            border-color: #ff6b6b;
+        }
+
+        /* Clicker Elements */
+        .score-display {
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .cps-display {
+            font-size: 16px;
+            color: var(--steam-blue);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .clicker-box {
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform 0.05s;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clicker-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .clicker-box:active {
+            transform: scale(0.92);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header>
+            <div class="logo">Goon<span>GG</span></div>
+        </header>
+
+        <div class="main-view">
+            <aside id="sidebar-list">
+                <div class="sidebar-title">My Games (3)</div>
+                </aside>
+
+            <main id="dashboard">
+                <div class="game-banner">
+                    <h1 class="game-title-hero" id="meta-title">Game Title</h1>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn-play" id="launch-btn">PLAY</button>
+                    <div class="game-status">
+                        <span class="status-label">Time Played</span>
+                        <span class="status-value" id="library-playtime">0 seconds</span>
+                    </div>
+                </div>
+
+                <div class="game-details">
+                    <h3>About the game</h3>
+                    <p style="margin-top: 10px;" id="meta-description">Description goes here...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="game-canvas-container">
+        <button class="close-btn" id="quit-btn">Quit</button>
+        
+        <div class="game-play-area">
+            <div class="score-display">Clicks: <span id="clicks-count">0</span></div>
+            <div class="cps-display">per second: <span id="cps-count">0</span></div>
+            <div class="clicker-box" id="target-box">
+                <img src="" id="target-image" alt="Target Asset">
+            </div>
+        </div>
+
+        <div class="game-shop-area" id="shop-container">
+            </div>
+    </div>
+
+    <script>
+        // Master Catalog System Configuration
+        const gamesCatalog = {
+            diddy: {
+                id: "diddy",
+                title: "Diddy Clicker",
+                description: "Welcome to Diddy Clicker, click Diddy, and just get better.",
+                image: "https://raw.githubusercontent.com/dariosfiles/juegesillo/refs/heads/main/3491-diddy-kong.png",
+                shopHeader: "KONG SHOP",
+                saveKeyScore: "diddy_clicks",
+                saveKeyTime: "diddy_playtime",
+                upgrades: {
+                    plantation: { name: "Banana Plantation", baseCost: 15, cps: 1, costMultiplier: 1.15 },
+                    rocket: { name: "Barrel Rocket", baseCost: 100, cps: 8, costMultiplier: 1.15 },
+                    boombox: { name: "DK Boombox", baseCost: 1100, cps: 47, costMultiplier: 1.15 },
+                    crystal: { name: "Crystal Coconut Mine", baseCost: 12000, cps: 260, costMultiplier: 1.15 },
+                    oil: { name: "The Oil", baseCost: 100000, cps: 25000, costMultiplier: 1.30, isOp: true }
+                }
+            },
+            goonbob: {
+                id: "goonbob",
+                title: "GoonBob Clicker",
+                description: "Dive down to Bikini Bottom and get clapped by Bob himself! This clicking game will submit you into a experience of clicking bob's dih.",
+                image: "https://raw.githubusercontent.com/dariosfiles/juegesillo/refs/heads/main/bobesponjita.PNG",
+                shopHeader: "BIKINI BOTTOM SHOP",
+                saveKeyScore: "bob_clicks",
+                saveKeyTime: "bob_playtime",
+                upgrades: {
+                    spatula: { name: "Rusty Spatula", baseCost: 20, cps: 1, costMultiplier: 1.15 },
+                    jellynet: { name: "Jellyfish Net", baseCost: 150, cps: 10, costMultiplier: 1.15 },
+                    bubble: { name: "Bubble Soap Bottle", baseCost: 1300, cps: 60, costMultiplier: 1.15 },
+                    patty: { name: "Secret Krabby Formula", baseCost: 14000, cps: 350, costMultiplier: 1.15 },
+                    spatula_gold: { name: "Golden Spatula", baseCost: 120000, cps: 3500, costMultiplier: 1.25 },
+                    lube: { name: "Lube", baseCost: 450000, cps: 10500, costMultiplier: 1.25 }
+                }
+            },
+            doggy: {
+                id: "doggy",
+                title: "Oreo Clicker",
+                description: "This fuckass dog is back to the clicker scene",
+                image: "https://raw.githubusercontent.com/dariosfiles/juegesillo/refs/heads/main/miperro.png",
+                shopHeader: "DOG BAZAAR",
+                saveKeyScore: "dog_clicks",
+                saveKeyTime: "dog_playtime",
+                upgrades: {
+                    tennis_ball: { name: "Squeaky Tennis Ball", baseCost: 25, cps: 1, costMultiplier: 1.15 },
+                    chew_rope: { name: "Braided Chew Rope", baseCost: 180, cps: 12, costMultiplier: 1.15 },
+                    plush_duck: { name: "Squeaking Plush Duck", baseCost: 1500, cps: 75, costMultiplier: 1.15 },
+                    kibble_feeder: { name: "Automatic Kibble Feeder", baseCost: 16000, cps: 400, costMultiplier: 1.15 },
+                    chicken_bone: { name: "Chicken Bone", baseCost: 150000, cps: 40000, costMultiplier: 1.35, isOp: true },
+                    big_mac: { name: "Big Mac", baseCost: 780000, cps: 90000, costMultiplier: 1.35, isOp: true }
+                }
+            }
+        };
+
+        // Active Application State Tracking Matrix
+        let activeGameKey = "diddy";
+        let isGameActive = false;
+        let playtimeTrackerInterval = null;
+        let passiveIncomeInterval = null;
+
+        // Runtime Global In-Memory Game Instances Core Cache
+        let runtimeGames = {};
+
+        // DOM Elements Selectors
+        const sidebarList = document.getElementById('sidebar-list');
+        const metaTitle = document.getElementById('meta-title');
+        const metaDescription = document.getElementById('meta-description');
+        const launchBtn = document.getElementById('launch-btn');
+        const quitBtn = document.getElementById('quit-btn');
+        const gameContainer = document.getElementById('game-canvas-container');
+        const targetBox = document.getElementById('target-box');
+        const targetImage = document.getElementById('target-image');
+        const clicksCountDisplay = document.getElementById('clicks-count');
+        const cpsCountDisplay = document.getElementById('cps-count');
+        const libraryPlaytimeDisplay = document.getElementById('library-playtime');
+        const shopContainer = document.getElementById('shop-container');
+
+        // Startup Pipeline Loading Sequences
+        function initDataStore() {
+            for (let gKey in gamesCatalog) {
+                let cat = gamesCatalog[gKey];
+                runtimeGames[gKey] = {
+                    score: parseInt(localStorage.getItem(cat.saveKeyScore)) || 0,
+                    playtime: parseInt(localStorage.getItem(cat.saveKeyTime)) || 0,
+                    upgrades: {}
+                };
+
+                for (let uKey in cat.upgrades) {
+                    runtimeGames[gKey].upgrades[uKey] = {
+                        ...cat.upgrades[uKey],
+                        count: parseInt(localStorage.getItem(`shop_${gKey}_${uKey}_count`)) || 0
+                    };
+                }
+            }
+        }
+
+        // Programmatic execution layer producing navigation layout UI nodes
+        function buildSidebarUI() {
+            for (let gKey in gamesCatalog) {
+                let item = gamesCatalog[gKey];
+                let div = document.createElement('div');
+                div.className = `game-list-item ${gKey === activeGameKey ? 'active' : ''}`;
+                div.id = `sidebar-item-${gKey}`;
+                div.textContent = item.title;
+
+                div.addEventListener('click', () => switchActiveHubGame(gKey));
+                sidebarList.appendChild(div);
+            }
+        }
+
+        function switchActiveHubGame(gameKey) {
+            if (isGameActive) return; 
+            
+            document.getElementById(`sidebar-item-${activeGameKey}`).classList.remove('active');
+            activeGameKey = gameKey;
+            document.getElementById(`sidebar-item-${activeGameKey}`).classList.add('active');
+
+            updateDashboardUI();
+        }
+
+        function updateDashboardUI() {
+            let cat = gamesCatalog[activeGameKey];
+            let run = runtimeGames[activeGameKey];
+
+            metaTitle.textContent = cat.title;
+            metaDescription.textContent = cat.description;
+            updatePlaytimeUI(run.playtime);
+        }
+
+        function buildShopUI() {
+            let cat = gamesCatalog[activeGameKey];
+            let itemGroup = runtimeGames[activeGameKey].upgrades;
+
+            shopContainer.innerHTML = `<div class="shop-header">${cat.shopHeader}</div>`;
+
+            for (let uKey in itemGroup) {
+                let item = itemGroup[uKey];
+                let itemDiv = document.createElement('div');
+                itemDiv.className = `shop-item ${item.isOp ? 'op-tier' : ''}`;
+                itemDiv.id = `shop-item-${uKey}`;
+
+                itemDiv.innerHTML = `
+                    <div class="item-info">
+                        <h4>${item.name}</h4>
+                        <p>+${item.cps.toLocaleString()} Clicks / sec</p>
+                    </div>
+                    <div class="item-cost">
+                        <span class="cost-val" id="${uKey}-cost">0</span>
+                        <span class="count-val" id="${uKey}-count">Owned: 0</span>
+                    </div>
+                `;
+
+                itemDiv.addEventListener('click', () => buyUpgrade(uKey));
+                shopContainer.appendChild(itemDiv);
+            }
+        }
+
+        function buyUpgrade(uKey) {
+            let run = runtimeGames[activeGameKey];
+            let cat = gamesCatalog[activeGameKey];
+            let item = run.upgrades[uKey];
+            
+            let currentCost = Math.floor(item.baseCost * Math.pow(item.costMultiplier, item.count));
+
+            if (run.score >= currentCost) {
+                run.score -= currentCost;
+                item.count++;
+                
+                localStorage.setItem(`shop_${activeGameKey}_${uKey}_count`, item.count);
+                localStorage.setItem(cat.saveKeyScore, run.score);
+
+                clicksCountDisplay.textContent = run.score.toLocaleString();
+                updateShopUI();
+            }
+        }
+
+        function calculateCPS() {
+            let total = 0;
+            let itemGroup = runtimeGames[activeGameKey].upgrades;
+            for (let uKey in itemGroup) {
+                total += itemGroup[uKey].count * itemGroup[uKey].cps;
+            }
+            return total;
+        }
+
+        function updateShopUI() {
+            let run = runtimeGames[activeGameKey];
+            let itemGroup = run.upgrades;
+
+            cpsCountDisplay.textContent = calculateCPS().toLocaleString();
+
+            for (let uKey in itemGroup) {
+                let item = itemGroup[uKey];
+                let currentCost = Math.floor(item.baseCost * Math.pow(item.costMultiplier, item.count));
+                
+                let costElement = document.getElementById(`${uKey}-cost`);
+                let countElement = document.getElementById(`${uKey}-count`);
+                let containerBtn = document.getElementById('shop-item-' + uKey);
+
+                if(costElement && countElement && containerBtn) {
+                    costElement.textContent = currentCost.toLocaleString();
+                    countElement.textContent = `Owned: ${item.count}`;
+
+                    if (run.score < currentCost) {
+                        containerBtn.classList.add('disabled');
+                    } else {
+                        containerBtn.classList.remove('disabled');
+                    }
+                }
+            }
+        }
+
+        function updatePlaytimeUI(seconds) {
+            if (seconds < 60) {
+                libraryPlaytimeDisplay.textContent = `${seconds} seconds`;
+            } else {
+                const minutes = Math.floor(seconds / 60);
+                libraryPlaytimeDisplay.textContent = `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+            }
+        }
+
+        // Initialize Assemblies
+        initDataStore();
+        buildSidebarUI();
+        updateDashboardUI();
+
+        // Launch Processing Execution Loops
+        launchBtn.addEventListener('click', () => {
+            let cat = gamesCatalog[activeGameKey];
+            let run = runtimeGames[activeGameKey];
+
+            targetImage.src = cat.image;
+            clicksCountDisplay.textContent = run.score.toLocaleString();
+
+            buildShopUI();
+            updateShopUI();
+            
+            gameContainer.style.display = 'flex';
+            isGameActive = true;
+            
+            playtimeTrackerInterval = setInterval(() => {
+                run.playtime++;
+                localStorage.setItem(cat.saveKeyTime, run.playtime);
+                updatePlaytimeUI(run.playtime);
+            }, 1000);
+
+            passiveIncomeInterval = setInterval(() => {
+                let totalCps = calculateCPS();
+                if (totalCps > 0) {
+                    run.score += totalCps;
+                    clicksCountDisplay.textContent = run.score.toLocaleString();
+                    localStorage.setItem(cat.saveKeyScore, run.score);
+                    updateShopUI();
+                }
+            }, 1000);
+        });
+
+        // Exit Handler
+        quitBtn.addEventListener('click', () => {
+            isGameActive = false;
+            gameContainer.style.display = 'none';
+            clearInterval(playtimeTrackerInterval);
+            clearInterval(passiveIncomeInterval);
+            updateDashboardUI();
+        });
+
+        // Clicker Engine Base Interactions
+        targetBox.addEventListener('mousedown', (e) => {
+            if (!isGameActive) return;
+            e.preventDefault();
+            
+            let run = runtimeGames[activeGameKey];
+            let cat = gamesCatalog[activeGameKey];
+
+            run.score++;
+            clicksCountDisplay.textContent = run.score.toLocaleString();
+            localStorage.setItem(cat.saveKeyScore, run.score);
+            updateShopUI();
+        });
+    </script>
+</body>
+</html>
