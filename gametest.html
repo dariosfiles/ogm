@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html>
+<head><style>body { margin: 0; overflow: hidden; }</style></head>
+<body>
+    <script type="importmap">
+        { "imports": { 
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js", 
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" 
+        } }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 2));
+
+        const loader = new FBXLoader();
+        
+        // Load the local file instead of the remote URL
+        loader.load('./model.fbx', (object) => {
+            scene.add(object);
+            const mixer = new THREE.AnimationMixer(object);
+            if(object.animations.length > 0) {
+                mixer.clipAction(object.animations[0]).play();
+            }
+        });
+
+        camera.position.set(0, 2, 5);
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
