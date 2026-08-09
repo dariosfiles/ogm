@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sprite RNG</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+  --bg-1:#0b0d1e;
+  --bg-2:#161a35;
+  --panel:#1c2144;
+  --panel-2:#242a52;
+  --text:#eef0ff;
+  --text-dim:#9aa1c9;
+  --accent:#7c5cff;
+  --accent-2:#00d4c8;
+  --gold:#ffd166;
+  --danger:#ff5c7a;
+
+  --c-common:#9aa5b1;
+  --c-uncommon:#42d977;
+  --c-rare:#3aa9ff;
+  --c-epic:#c05cff;
+  --c-mythic:#ff8a3d;
+  --c-secret:#ffd700;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Nunito', sans-serif;
+  background:
+    radial-gradient(circle at 20% 0%, #2a2f66 0%, transparent 45%),
+    radial-gradient(circle at 85% 10%, #3a1f5c 0%, transparent 40%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  overflow-x:hidden;
+}
+
+.app{
+  width:100%;
+  max-width:480px;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent 200px);
+}
+
+/* ---------- PC WARNING BANNER ---------- */
+.pc-warning{
+  background: rgba(255, 92, 122, 0.15);
+  border-bottom: 2px solid var(--danger);
+  color: var(--danger);
+  text-align: center;
+  padding: 10px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  display: none;
+  z-index: 100;
+}
+.pc-warning.show{
+  display: block;
+}
+
+/* ---------- TOP BAR ---------- */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px;
+  background:rgba(12,14,32,0.85);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.brand{
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+  font-size:20px;
+  letter-spacing:0.5px;
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.dust-counter{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,0.08);
+  padding:6px 12px 6px 6px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:15px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+.dust-counter img{
+  width:24px;height:24px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#000;
+}
+.dust-counter span{ transition:transform 0.15s ease; }
+.dust-counter.bump span{ transform:scale(1.25); color:var(--gold); }
+
+/* ---------- MAIN ---------- */
+main{
+  flex:1;
+  padding:16px 16px 90px 16px;
+  overflow-y:auto;
+}
+.view{ display:none; animation:fadeIn 0.25s ease; }
+.view.active{ display:block; }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+/* ---------- ROLL VIEW ---------- */
+.roll-stage{
+  position:relative;
+  margin:8px auto 18px auto;
+  width:230px;
+  height:230px;
+  border-radius:28px;
+  background:radial-gradient(circle at 50% 30%, rgba(124,92,255,0.35), rgba(0,0,0,0) 70%), var(--panel);
+  border:2px solid rgba(255,255,255,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  box-shadow:0 10px 40px rgba(0,0,0,0.45);
+}
+.roll-stage::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:conic-gradient(from 0deg, transparent, rgba(124,92,255,0.25), transparent 40%);
+  animation:spin 4s linear infinite;
+  opacity:0.6;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+.roll-stage img{
+  position:relative;
+  z-index:2;
+  width:130px;
+  height:130px;
+  object-fit:contain;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+}
+.roll-stage .placeholder-icon{
+  position:relative; z-index:2;
+  width:130px;height:130px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;
+}
+.roll-glow{
+  position:absolute;
+  inset:0;
+  border-radius:28px;
+  opacity:0;
+  transition:opacity 0.25s ease;
+  pointer-events:none;
+}
+.roll-glow.show{ opacity:1; }
+
+.roll-info{
+  text-align:center;
+  margin-bottom:18px;
+  min-height:20px;
+  font-size:13px;
+  color:var(--text-dim);
+  font-weight:700;
+}
+
+.btn-roll{
+  width:100%;
+  padding:18px;
+  border:none;
+  border-radius:20px;
+  font-family:'Baloo 2', sans-serif;
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:#0b0d1e;
+  background:linear-gradient(135deg, var(--accent-2), var(--accent));
+  box-shadow:0 8px 0 #4a33b8, 0 14px 24px rgba(124,92,255,0.35);
+  cursor:pointer;
+  transition:transform 0.08s ease, box-shadow 0.08s ease;
+}
+.btn-roll:active{ transform:translateY(6px); box-shadow:0 2px 0 #4a33b8, 0 6px 14px rgba(124,92,255,0.3); }
+.btn-roll:disabled{ opacity:0.55; cursor:not-allowed; transform:none; box-shadow:0 8px 0 #4a33b8; }
+
+.btn-roll10{
+  width:100%;
+  margin-top:10px;
+  padding:13px;
+  border:none;
+  border-radius:16px;
+  font-family:'Baloo 2', sans-serif;
+  font-size:16px;
+  font-weight:700;
+  color:var(--text);
+  background:var(--panel-2);
+  border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-roll10 img{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.btn-roll10:active{ transform:scale(0.98); }
+.btn-roll10:disabled{ opacity:0.5; cursor:not-allowed; }
+
+.stats-row{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
+.stat-card{
+  flex:1;
+  background:var(--panel);
+  border-radius:14px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.stat-card .label{ font-size:11px; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;}
+.stat-card .value{ font-size:18px; font-weight:800; margin-top:2px; font-family:'Baloo 2', sans-serif;}
+
+/* ---------- SECTION TITLES ---------- */
+.section-title{
+  font-family:'Baloo 2', sans-serif;
+  font-size:18px;
+  font-weight:800;
+  margin:4px 0 12px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.section-title small{ font-size:12px; color:var(--text-dim); font-weight:600; }
+
+/* ---------- INVENTORY ---------- */
+.inv-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:10px;
+}
+.inv-card{
+  background:var(--panel);
+  border-radius:16px;
+  padding:10px 6px 8px 6px;
+  text-align:center;
+  border:2px solid rgba(255,255,255,0.06);
+  position:relative;
+  overflow:hidden;
+}
+.inv-card.owned{ box-shadow:0 4px 14px rgba(0,0,0,0.35); }
+.inv-card .thumb{
+  width:56px;height:56px;
+  margin:0 auto 6px auto;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:12px;
+}
+.inv-card img{ width:46px;height:46px; object-fit:contain; }
+.inv-card.locked{ opacity:0.55; }
+.inv-card.locked .thumb{ background:rgba(255,255,255,0.04); font-size:22px; }
+.inv-card .iname{ font-size:11.5px; font-weight:800; line-height:1.2; min-height:28px; display:flex; align-items:center; justify-content:center;}
+.inv-card .irarity{ font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; margin-top:2px; }
+.inv-card .dupbadge{
+  position:absolute; top:6px; right:6px;
+  background:rgba(0,0,0,0.55);
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  padding:1px 6px;
+  border-radius:999px;
+}
+.inv-summary{
+  display:flex;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+/* rarity color helpers */
+.r-common{ color:var(--c-common); }
+.r-uncommon{ color:var(--c-uncommon); }
+.r-rare{ color:var(--c-rare); }
+.r-epic{ color:var(--c-epic); }
+.r-mythic{ color:var(--c-mythic); }
+.r-secret{ color:var(--c-secret); }
+
+.border-common{ border-color:rgba(154,165,177,0.45) !important; }
+.border-uncommon{ border-color:rgba(66,217,119,0.5) !important; }
+.border-rare{ border-color:rgba(58,169,255,0.5) !important; }
+.border-epic{ border-color:rgba(192,92,255,0.55) !important; }
+.border-mythic{ border-color:rgba(255,138,61,0.65) !important; box-shadow:0 0 16px rgba(255,138,61,0.25); }
+.border-secret{
+  border-color:var(--c-secret) !important;
+  box-shadow:0 0 18px rgba(255,215,0,0.45);
+  animation:secretPulse 1.6s ease-in-out infinite;
+}
+@keyframes secretPulse{
+  0%,100%{ box-shadow:0 0 12px rgba(255,215,0,0.35); }
+  50%{ box-shadow:0 0 26px rgba(255,215,0,0.75); }
+}
+.bg-common{ background:radial-gradient(circle, rgba(154,165,177,0.25), transparent 70%); }
+.bg-uncommon{ background:radial-gradient(circle, rgba(66,217,119,0.3), transparent 70%); }
+.bg-rare{ background:radial-gradient(circle, rgba(58,169,255,0.3), transparent 70%); }
+.bg-epic{ background:radial-gradient(circle, rgba(192,92,255,0.32), transparent 70%); }
+.bg-mythic{ background:radial-gradient(circle, rgba(255,138,61,0.38), transparent 70%); }
+.bg-secret{ background:radial-gradient(circle, rgba(255,215,0,0.4), transparent 70%); }
+
+/* ---------- UPGRADES ---------- */
+.upg-card{
+  background:var(--panel);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:12px;
+  border:1px solid rgba(255,255,255,0.07);
+}
+.upg-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.upg-name{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:16px; }
+.upg-level{ font-size:11px; color:var(--text-dim); font-weight:700; margin-top:2px; }
+.upg-desc{ font-size:12.5px; color:var(--text-dim); margin-top:6px; line-height:1.4; }
+.upg-effect{ font-size:12px; color:var(--accent-2); font-weight:700; margin-top:6px; }
+.upg-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:12px;
+}
+.upg-cost{ display:flex; align-items:center; gap:6px; font-weight:800; font-size:14px; }
+.upg-cost img{ width:18px;height:18px; border-radius:50%; }
+.btn-buy{
+  border:none;
+  padding:9px 16px;
+  border-radius:12px;
+  font-weight:800;
+  font-family:'Baloo 2', sans-serif;
+  letter-spacing:0.4px;
+  background:linear-gradient(135deg, var(--accent-2), var(--accent));
+  color:#0b0d1e;
+  cursor:pointer;
+}
+.btn-buy:disabled{ background:#3a3f5e; color:#7c81a0; cursor:not-allowed; }
+.upg-bar{
+  height:6px;
+  border-radius:4px;
+  background:rgba(255,255,255,0.08);
+  margin-top:10px;
+  overflow:hidden;
+}
+.upg-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--accent-2), var(--accent));
+  border-radius:4px;
+  transition:width 0.3s ease;
+}
+
+/* ---------- BOTTOM NAV ---------- */
+.bottomnav{
+  position:fixed;
+  bottom:0; left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:480px;
+  display:flex;
+  background:rgba(12,14,32,0.92);
+  backdrop-filter:blur(10px);
+  border-top:1px solid rgba(255,255,255,0.07);
+  z-index:60;
+  padding-bottom:env(safe-area-inset-bottom, 0);
+}
+.nav-btn{
+  flex:1;
+  background:none;
+  border:none;
+  color:var(--text-dim);
+  padding:12px 4px 10px 4px;
+  font-family:'Nunito', sans-serif;
+  font-size:11.5px;
+  font-weight:800;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+}
+.nav-btn .icon{ font-size:20px; }
+.nav-btn.active{ color:var(--accent-2); }
+
+/* ---------- RESULT MODAL ---------- */
+.modal-overlay{
+  position:fixed; inset:0;
+  background:rgba(5,6,16,0.75);
+  backdrop-filter:blur(4px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:20px;
+}
+.modal-overlay.show{ display:flex; }
+.result-card{
+  width:100%;
+  max-width:320px;
+  background:var(--panel);
+  border-radius:24px;
+  padding:26px 22px 22px 22px;
+  text-align:center;
+  border:2px solid rgba(255,255,255,0.1);
+  animation:popIn 0.28s cubic-bezier(.2,1.4,.4,1);
+  position:relative;
+}
+@keyframes popIn{ from{ transform:scale(0.7); opacity:0;} to{ transform:scale(1); opacity:1;} }
+.result-tag{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.result-img-wrap{
+  width:130px;height:130px;
+  margin:0 auto 14px auto;
+  border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+}
+.result-img-wrap img{ width:96px;height:96px; object-fit:contain; filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5));}
+.result-name{ font-family:'Baloo 2', sans-serif; font-size:22px; font-weight:800; }
+.result-rarity{ font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.6px; margin-top:2px;}
+.result-dup{
+  margin-top:10px;
+  display:inline-block;
+  background:rgba(255,255,255,0.08);
+  padding:4px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--text-dim);
+}
+.result-dust{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-weight:800;
+  font-size:16px;
+  color:var(--gold);
+}
+.result-dust img{ width:20px;height:20px; border-radius:50%; }
+.btn-close-modal{
+  margin-top:18px;
+  width:100%;
+  padding:13px;
+  border:none;
+  border-radius:14px;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+  font-size:15px;
+  background:linear-gradient(135deg, var(--accent-2), var(--accent));
+  color:#0b0d1e;
+  cursor:pointer;
+}
+
+/* multi roll grid */
+.multi-grid{
+  display:grid;
+  grid-template-columns:repeat(5, 1fr);
+  gap:6px;
+  margin:10px 0 6px 0;
+}
+.multi-item{
+  border-radius:10px;
+  padding:6px 2px;
+  text-align:center;
+  border:2px solid rgba(255,255,255,0.08);
+}
+.multi-item img{ width:34px;height:34px; object-fit:contain; }
+.multi-item .mname{ font-size:8.5px; font-weight:800; margin-top:2px; line-height:1.1; }
+
+.empty-hint{
+  text-align:center;
+  color:var(--text-dim);
+  font-size:12.5px;
+  padding:10px 20px 4px 20px;
+}
+
+::-webkit-scrollbar{ width:6px; }
+::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.12); border-radius:4px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- PC WARNING BANNER -->
+  <div class="pc-warning" id="pcWarning">JUEGA ESTO EN MOVIL</div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">✨ Sprite RNG</div>
+    <div class="dust-counter" id="dustCounter">
+      <img src="https://static.wikia.nocookie.net/fortnite/images/7/76/Sprite_Dust_-_Item_-_Fortnite.png" alt="Sprite Dust" onerror="this.style.display='none'">
+      <span id="dustAmount">0</span>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ================= ROLL VIEW ================= -->
+    <section class="view active" id="view-roll">
+      <div class="roll-stage" id="rollStage">
+        <div class="roll-glow" id="rollGlow"></div>
+        <div id="rollStageContent" class="placeholder-icon">🎲</div>
+      </div>
+      <div class="roll-info" id="rollInfo">Pulsa ROLL para conseguir tu primer Sprite</div>
+
+      <button class="btn-roll" id="btnRoll">ROLL</button>
+      <button class="btn-roll10" id="btnRoll10">ROLL x10</button>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Rolls totales</div>
+          <div class="value" id="statRolls">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Sprites</div>
+          <div class="value" id="statSprites">0 / 0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INVENTORY VIEW ================= -->
+    <section class="view" id="view-inventory">
+      <div class="section-title">Inventario <small id="invCountLabel">0 / 0 conseguidos</small></div>
+      <div class="inv-grid" id="invGrid"></div>
+    </section>
+
+    <!-- ================= UPGRADES VIEW ================= -->
+    <section class="view" id="view-upgrades">
+      <div class="section-title">Mejoras</div>
+      <div id="upgradesList"></div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottomnav">
+    <button class="nav-btn active" data-view="roll">
+      <span class="icon">🎲</span> Inicio
+    </button>
+    <button class="nav-btn" data-view="inventory">
+      <span class="icon">🎒</span> Inventario
+    </button>
+    <button class="nav-btn" data-view="upgrades">
+      <span class="icon">⬆️</span> Mejoras
+    </button>
+  </nav>
+
+  <!-- RESULT MODAL (single roll) -->
+  <div class="modal-overlay" id="resultModal">
+    <div class="result-card" id="resultCard">
+      <div class="result-tag" id="resultTag">¡SPRITE OBTENIDO!</div>
+      <div class="result-img-wrap" id="resultImgWrap">
+        <img id="resultImg" src="" alt="">
+      </div>
+      <div class="result-name" id="resultName"></div>
+      <div class="result-rarity" id="resultRarity"></div>
+      <div id="resultDupWrap"></div>
+      <div class="result-dust">
+        <img src="https://static.wikia.nocookie.net/fortnite/images/7/76/Sprite_Dust_-_Item_-_Fortnite.png" alt="" onerror="this.style.display='none'">
+        <span id="resultDustGain">+0</span>
+      </div>
+      <button class="btn-close-modal" id="btnCloseModal">Continuar</button>
+    </div>
+  </div>
+
+  <!-- RESULT MODAL (multi roll) -->
+  <div class="modal-overlay" id="multiModal">
+    <div class="result-card" id="multiCard" style="max-width:360px;">
+      <div class="result-tag">RESULTADOS x10</div>
+      <div class="multi-grid" id="multiGrid"></div>
+      <div class="result-dust">
+        <img src="https://static.wikia.nocookie.net/fortnite/images/7/76/Sprite_Dust_-_Item_-_Fortnite.png" alt="" onerror="this.style.display='none'">
+        <span id="multiDustGain">+0</span>
+      </div>
+      <button class="btn-close-modal" id="btnCloseMultiModal">Continuar</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   0. DETECCIÓN DE PC Y BLOQUEO
+   ========================================================= */
+let isPC = false;
+function checkIsPC(){
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+  if (!isMobile) {
+    isPC = true;
+    document.getElementById("pcWarning").classList.add("show");
+  }
+}
+checkIsPC();
+
+/* =========================================================
+   1. DATOS: RAREZAS
+   ========================================================= */
+const RARITIES = {
+  common:    { label:"Común",    cls:"common",    order:1 },
+  uncommon:  { label:"Poco común", cls:"uncommon", order:2 },
+  rare:      { label:"Raro",     cls:"rare",       order:3 },
+  epic:      { label:"Épico",    cls:"epic",       order:4 },
+  mythic:    { label:"Mítico",   cls:"mythic",     order:5 },
+  secret:    { label:"Mítico Secreto", cls:"secret", order:6 }
+};
+
+/* =========================================================
+   2. DATOS: SPRITES
+   ========================================================= */
+const SPRITES = [
+  { id:"agua",       name:"Agua",       rarity:"common", weight:20000, dust:4,
+    image:"https://static.wikia.nocookie.net/fortnite/images/2/29/Water_Sprite_%28v41.00%29_-_Item_-_Fortnite.png" },
+  { id:"tierra",     name:"Tierra",     rarity:"common", weight:17000, dust:4,
+    image:"https://static.wikia.nocookie.net/fortnite/images/c/cf/Earth_Sprite_-_Item_-_Fortnite.png" },
+  { id:"fuego",      name:"Fuego",      rarity:"common", weight:14000, dust:5,
+    image:"https://static.wikia.nocookie.net/fortnite/images/a/a4/Fire_Sprite_-_Item_-_Fortnite.png" },
+  { id:"aire",       name:"Aire",       rarity:"common", weight:12000, dust:5,
+    image:"https://static.wikia.nocookie.net/fortnite/images/f/f3/Air_Sprite_%28v41.10%29_-_Item_-_Fortnite.png" },
+
+  { id:"pescadito",  name:"Pescadito",  rarity:"uncommon", weight:10000, dust:7,
+    image:"https://static.wikia.nocookie.net/fortnite/images/7/71/Fishy_Sprite_-_Item_-_Fortnite.png" },
+  { id:"pato",       name:"Pato",       rarity:"uncommon", weight:8000, dust:8,
+    image:"https://static.wikia.nocookie.net/fortnite/images/d/d7/Duck_Sprite_-_Item_-_Fortnite.png" },
+  { id:"fantasma",   name:"Fantasma",   rarity:"uncommon", weight:6500, dust:9,
+    image:"https://static.wikia.nocookie.net/fortnite/images/6/68/Ghost_Sprite_-_Item_-_Fortnite.png" },
+  { id:"demonio",    name:"Demonio",    rarity:"uncommon", weight:5000, dust:10,
+    image:"https://static.wikia.nocookie.net/fortnite/images/9/9f/Demon_Sprite_-_Item_-_Fortnite.png" },
+
+  { id:"rey",        name:"Rey",        rarity:"rare", weight:3800, dust:15,
+    image:"https://static.wikia.nocookie.net/fortnite/images/9/9f/King_Sprite_-_Item_-_Fortnite.png" },
+  { id:"futbolista",  name:"Futbolista", rarity:"rare", weight:2800, dust:18,
+    image:"https://static.wikia.nocookie.net/fortnite/images/e/e8/Striker_Sprite_-_Item_-_Fortnite.png" },
+  { id:"aura",       name:"Aura",       rarity:"rare", weight:2000, dust:22,
+    image:"https://static.wikia.nocookie.net/fortnite/images/0/0e/Aura_Sprite_-_Item_-_Fortnite.png" },
+  { id:"sonador",    name:"Soñador",    rarity:"rare", weight:1400, dust:26,
+    image:"https://static.wikia.nocookie.net/fortnite/images/9/99/Dream_Sprite_-_Item_-_Fortnite.png" },
+
+  { id:"boss",       name:"Boss",       rarity:"epic", weight:900, dust:40,
+    image:"https://static.wikia.nocookie.net/fortnite/images/b/b4/Boss_Sprite_-_Item_-_Fortnite.png" },
+  { id:"los_siete",  name:"Los Siete",  rarity:"epic", weight:550, dust:55,
+    image:"https://static.wikia.nocookie.net/fortnite/images/b/b6/Seven_Sprite_-_Item_-_Fortnite.png" },
+  { id:"bananin",    name:"Bananin",    rarity:"epic", weight:300, dust:70,
+    image:"https://static.wikia.nocookie.net/fortnite/images/2/29/Peeky_Peely_Sprite_-_Item_-_Fortnite.png" },
+  { id:"llama",      name:"Llama",      rarity:"epic", weight:150, dust:90,
+    image:"https://static.wikia.nocookie.net/fortnite/images/0/02/Lootin%27_Llama_Sprite_-_Item_-_Fortnite.png" },
+
+  { id:"john_wick",  name:"John Wick",  rarity:"mythic", weight:40, dust:400,
+    image:"https://static.wikia.nocookie.net/fortnite/images/0/0e/John_Wick_Sprite_-_Item_-_Fortnite.png" },
+  { id:"cacahuete",  name:"Cacahuete",  rarity:"mythic", weight:32, dust:450,
+    image:"https://static.wikia.nocookie.net/fortnite/images/0/0b/Burnt_Peanut_-_Item_-_Fortnite.png" },
+  { id:"vini_jr",    name:"Vini JR",    rarity:"mythic", weight:26, dust:500,
+    image:"https://static.wikia.nocookie.net/fortnite/images/3/3f/Vini_Jr._Sprite_-_Item_-_Fortnite.png" },
+  { id:"batman",     name:"Batman",     rarity:"mythic", weight:20, dust:600,
+    image:"https://static.wikia.nocookie.net/fortnite/images/c/ca/Batman_Sprite_-_Item_-_Fortnite.png" },
+  { id:"pollo",      name:"Pollo",      rarity:"mythic", weight:15, dust:700,
+    image:"https://static.wikia.nocookie.net/fortnite/images/b/be/Pollo_Sprite_-_Item_-_Fortnite.png" },
+  { id:"punto_zero", name:"Punto Zero", rarity:"mythic", weight:10, dust:850,
+    image:"https://static.wikia.nocookie.net/fortnite/images/a/a4/Zero_Point_Sprite_-_Item_-_Fortnite.png" },
+  { id:"ironmouse",  name:"Ironmouse",  rarity:"mythic", weight:7, dust:1000,
+    image:"https://static.wikia.nocookie.net/fortnite/images/a/ad/Ironmouse_Sprite_-_Item_-_Fortnite.png" },
+  { id:"parca",      name:"Parca",      rarity:"mythic", weight:4, dust:1300,
+    image:"https://static.wikia.nocookie.net/fortnite/images/5/54/Grim_Sprite_-_Item_-_Fortnite.png" },
+
+  { id:"pz_dorado",  name:"Punto Zero Dorado",     rarity:"secret", weight:0.5, dust:3000,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPoint_Gold_ui_L.webp" },
+  { id:"pz_gomita",  name:"Punto Zero Gomita",     rarity:"secret", weight:0.4, dust:3200,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPoint_Candy_ui_L.webp" },
+  { id:"pz_galaxy",  name:"Punto Zero Galaxy",     rarity:"secret", weight:0.3, dust:3500,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPoint_Galaxy_ui_L.webp" },
+  { id:"pz_cubo",    name:"Punto Zero Cubo",       rarity:"secret", weight:0.25, dust:3800,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPoint_Cube_ui_L.webp" },
+  { id:"pz_gema",    name:"Punto Zero Gema",       rarity:"secret", weight:0.2, dust:4200,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPoint_Gem_ui_L.webp" },
+  { id:"pz_quack",   name:"Punto Zero Quack",      rarity:"secret", weight:0.15, dust:4600,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPoint_Quack_ui_L.webp" },
+  { id:"pz_holo",    name:"Punto Zero Holograma",  rarity:"secret", weight:0.1, dust:5000,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_ZeroPoint_Holofoil_ui_L.webp" },
+  { id:"parca_dorada",  name:"Parca Dorada",     rarity:"secret", weight:0.08, dust:5500,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_GrimReaper_Gold_L.webp" },
+  { id:"parca_gomita",  name:"Parca Gomita",     rarity:"secret", weight:0.06, dust:6000,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_GrimReaper_Candy_L.webp" },
+  { id:"parca_galaxy",  name:"Parca Galaxy",     rarity:"secret", weight:0.05, dust:6500,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_GrimReaper_Galaxy_L.webp" },
+  { id:"parca_cubo",    name:"Parca Cubo",       rarity:"secret", weight:0.04, dust:7000,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_GrimReaper_Cube_L.webp" },
+  { id:"parca_holo",    name:"Parca Holograma",  rarity:"secret", weight:0.03, dust:8000,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_GrimReaper_Holofoil_L.webp" },
+  { id:"parca_gema",    name:"Parca Gema",       rarity:"secret", weight:0.02, dust:9000,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_GrimReaper_Gem_L.webp" },
+  { id:"bananin_galaxy", name:"Bananin Galaxy",  rarity:"secret", weight:0.01, dust:15000,
+    image:"https://fortnite.gg/img/x/sprites/icons/T_Icon_BR_Creature_Sprite_Peely_Galaxy_ui_L.webp" }
+];
+
+const SPRITES_BY_ID = {};
+SPRITES.forEach(s => SPRITES_BY_ID[s.id] = s);
+
+/* =========================================================
+   3. DATOS: UPGRADES
+   ========================================================= */
+const UPGRADES = [
+  {
+    key:"luck",
+    name:"Luck",
+    icon:"🍀",
+    desc:"Aumenta ligeramente la probabilidad de conseguir Sprites de rareza Poco común o superior.",
+    baseCost:50,
+    growth:1.55,
+    maxLevel:15,
+    effectPerLevel:0.04,
+    effectLabel:(lvl)=> `+${(lvl*4)}% de posibilidades en rarezas no comunes`
+  },
+  {
+    key:"dustBoost",
+    name:"Dust Boost",
+    icon:"💠",
+    desc:"Aumenta la cantidad de Sprite Dust obtenida en cada roll.",
+    baseCost:80,
+    growth:1.6,
+    maxLevel:20,
+    effectPerLevel:0.10,
+    effectLabel:(lvl)=> `+${(lvl*10)}% de Sprite Dust por roll`
+  },
+  {
+    key:"betterLuck",
+    name:"Better Luck",
+    icon:"🌟",
+    desc:"Mejora progresivamente las probabilidades de conseguir Sprites Míticos y Míticos Secretos.",
+    baseCost:600,
+    growth:1.9,
+    maxLevel:12,
+    effectPerLevel:0.10,
+    effectLabel:(lvl)=> `+${(lvl*10)}% de posibilidades en rarezas Míticas`
+  },
+  {
+    key:"rollBoost",
+    name:"Roll Boost",
+    icon:"⚡",
+    desc:"Acelera la animación de cada roll, permitiendo jugar más rápido.",
+    baseCost:100,
+    growth:1.45,
+    maxLevel:14,
+    effectPerLevel:70,
+    effectLabel:(lvl)=> `Animación ${Math.round((lvl*70)/2200*100)}% más rápida`
+  }
+];
+
+/* =========================================================
+   4. ESTADO / GUARDADO
+   ========================================================= */
+const SAVE_KEY = "spriteRngSave_v3";
+
+function defaultState(){
+  const upgrades = {};
+  UPGRADES.forEach(u => upgrades[u.key] = 0);
+  return {
+    dust: 0,
+    owned: {},
+    upgrades: upgrades,
+    totalRolls: 0,
+    roll10Unlocked: false
+  };
+}
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const base = defaultState();
+    const merged = Object.assign({}, base, parsed);
+    merged.owned = parsed.owned || {};
+    merged.upgrades = Object.assign({}, base.upgrades, parsed.upgrades || {});
+    if(typeof merged.dust !== "number" || isNaN(merged.dust)) merged.dust = 0;
+    if(typeof merged.totalRolls !== "number" || isNaN(merged.totalRolls)) merged.totalRolls = 0;
+    if(typeof merged.roll10Unlocked !== "boolean") merged.roll10Unlocked = false;
+    return merged;
+  }catch(e){
+    console.warn("No se pudo cargar la partida guardada, se inicia una nueva.", e);
+    return defaultState();
+  }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  }catch(e){
+    console.warn("No se pudo guardar la partida.", e);
+  }
+}
+
+/* =========================================================
+   5. LÓGICA DEL RNG
+   ========================================================= */
+function getEffectiveWeight(sprite){
+  let w = sprite.weight;
+  const luckLv = state.upgrades.luck || 0;
+  const betterLv = state.upgrades.betterLuck || 0;
+  const luckCfg = UPGRADES.find(u => u.key === "luck");
+  const betterCfg = UPGRADES.find(u => u.key === "betterLuck");
+
+  if(sprite.rarity !== "common"){
+    w *= (1 + luckLv * luckCfg.effectPerLevel);
+  }
+  if(sprite.rarity === "mythic" || sprite.rarity === "secret"){
+    w *= (1 + betterLv * betterCfg.effectPerLevel);
+  }
+  return w;
+}
+
+function rollOneSprite(){
+  const weighted = SPRITES.map(s => ({ sprite:s, w:getEffectiveWeight(s) }));
+  const total = weighted.reduce((acc, item) => acc + item.w, 0);
+  let r = Math.random() * total;
+  for(const item of weighted){
+    if(r < item.w) return item.sprite;
+    r -= item.w;
+  }
+  return weighted[weighted.length - 1].sprite;
+}
+
+function getDustBoostMultiplier(){
+  const cfg = UPGRADES.find(u => u.key === "dustBoost");
+  const lvl = state.upgrades.dustBoost || 0;
+  return 1 + lvl * cfg.effectPerLevel;
+}
+
+function getDustReward(sprite){
+  return Math.round(sprite.dust * getDustBoostMultiplier());
+}
+
+function getRollAnimationDuration(){
+  const cfg = UPGRADES.find(u => u.key === "rollBoost");
+  const lvl = state.upgrades.rollBoost || 0;
+  const reduction = lvl * cfg.effectPerLevel;
+  return Math.max(500, 2200 - reduction);
+}
+
+function applyRollResult(sprite){
+  const isNew = !state.owned[sprite.id];
+  if(!state.owned[sprite.id]){
+    state.owned[sprite.id] = { count: 1 };
+  } else {
+    state.owned[sprite.id].count += 1;
+  }
+  const dustGained = getDustReward(sprite);
+  state.dust += dustGained;
+  state.totalRolls += 1;
+  return { isNew, dustGained };
+}
+
+/* =========================================================
+   6. RENDER: TOP BAR
+   ========================================================= */
+const dustCounterEl = document.getElementById("dustCounter");
+const dustAmountEl = document.getElementById("dustAmount");
+
+function formatNumber(n){
+  return Math.floor(n).toLocaleString("es-ES");
+}
+
+function renderDust(bump){
+  dustAmountEl.textContent = formatNumber(state.dust);
+  renderRoll10Button();
+  if(bump){
+    dustCounterEl.classList.add("bump");
+    setTimeout(()=> dustCounterEl.classList.remove("bump"), 220);
+  }
+}
+
+/* =========================================================
+   7. RENDER: NAV / VISTAS
+   ========================================================= */
+const navButtons = document.querySelectorAll(".nav-btn");
+const views = {
+  roll: document.getElementById("view-roll"),
+  inventory: document.getElementById("view-inventory"),
+  upgrades: document.getElementById("view-upgrades")
+};
+
+function switchView(name){
+  if(isPC) return; // Bloquear si está en PC
+  Object.keys(views).forEach(key=>{
+    views[key].classList.toggle("active", key === name);
+  });
+  navButtons.forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.view === name);
+  });
+  if(name === "inventory") renderInventory();
+  if(name === "upgrades") renderUpgrades();
+}
+
+navButtons.forEach(btn=>{
+  btn.addEventListener("click", ()=> switchView(btn.dataset.view));
+});
+
+/* =========================================================
+   8. RENDER: ROLL VIEW
+   ========================================================= */
+const rollStageContent = document.getElementById("rollStageContent");
+const rollGlow = document.getElementById("rollGlow");
+const rollInfo = document.getElementById("rollInfo");
+const btnRoll = document.getElementById("btnRoll");
+const btnRoll10 = document.getElementById("btnRoll10");
+const statRolls = document.getElementById("statRolls");
+const statSprites = document.getElementById("statSprites");
+
+function renderRollStats(){
+  statRolls.textContent = formatNumber(state.totalRolls);
+  const ownedCount = Object.keys(state.owned).length;
+  statSprites.textContent = ownedCount + " / " + SPRITES.length;
+}
+
+function renderRoll10Button(){
+  if(state.roll10Unlocked){
+    btnRoll10.innerHTML = "ROLL x10";
+    btnRoll10.style.background = "var(--panel-2)";
+  } else {
+    const canAfford = state.dust >= 6000;
+    btnRoll10.innerHTML = `Desbloquear ROLL x10 (<img src="https://static.wikia.nocookie.net/fortnite/images/7/76/Sprite_Dust_-_Item_-_Fortnite.png" onerror="this.style.display='none'"> 6.000)`;
+    btnRoll10.style.background = canAfford ? "linear-gradient(135deg, var(--accent-2), var(--accent))" : "var(--panel-2)";
+    btnRoll10.style.color = canAfford ? "#0b0d1e" : "var(--text)";
+  }
+}
+
+function setStageImage(sprite){
+  rollStageContent.innerHTML = "";
+  const img = document.createElement("img");
+  img.src = sprite.image;
+  img.alt = sprite.name;
+  img.onerror = function(){
+    this.replaceWith(makeFallbackIcon(sprite));
+  };
+  rollStageContent.appendChild(img);
+}
+
+function makeFallbackIcon(sprite){
+  const div = document.createElement("div");
+  div.textContent = sprite.name.charAt(0).toUpperCase();
+  div.style.fontFamily = "'Baloo 2', sans-serif";
+  div.style.fontSize = "48px";
+  div.style.fontWeight = "800";
+  div.style.color = "var(--c-" + sprite.rarity + ")";
+  return div;
+}
+
+let isRolling = false;
+
+function setRollingUI(rolling){
+  isRolling = rolling;
+  btnRoll.disabled = rolling;
+  btnRoll10.disabled = rolling;
+  btnRoll.textContent = rolling ? "..." : "ROLL";
+}
+
+function playRollAnimation(finalSprite, onDone){
+  const totalDuration = getRollAnimationDuration();
+  const startTime = performance.now();
+  rollGlow.classList.remove("show");
+  rollInfo.textContent = "Girando...";
+
+  function frame(now){
+    const elapsed = now - startTime;
+    if(elapsed >= totalDuration){
+      setStageImage(finalSprite);
+      const rarityInfo = RARITIES[finalSprite.rarity];
+      rollGlow.className = "roll-glow show bg-" + rarityInfo.cls;
+      rollInfo.innerHTML = "<span class='r-" + rarityInfo.cls + "'>" + finalSprite.name + " · " + rarityInfo.label + "</span>";
+      onDone();
+      return;
+    }
+    const progress = elapsed / totalDuration;
+    const frameInterval = 45 + progress * progress * 220;
+    if(!frame.lastUpdate || now - frame.lastUpdate >= frameInterval){
+      const randomSprite = SPRITES[Math.floor(Math.random() * SPRITES.length)];
+      setStageImage(randomSprite);
+      frame.lastUpdate = now;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function doSingleRoll(){
+  if(isPC || isRolling) return; // Bloquear si está en PC
+  setRollingUI(true);
+  const finalSprite = rollOneSprite();
+  playRollAnimation(finalSprite, ()=>{
+    const { isNew, dustGained } = applyRollResult(finalSprite);
+    renderDust(true);
+    renderRollStats();
+    saveState();
+    showResultModal(finalSprite, isNew, dustGained);
+    setRollingUI(false);
+  });
+}
+
+btnRoll.addEventListener("click", doSingleRoll);
+
+btnRoll10.addEventListener("click", ()=>{
+  if(isPC || isRolling) return; // Bloquear si está en PC
+
+  if(!state.roll10Unlocked){
+    if(state.dust >= 6000){
+      state.dust -= 6000;
+      state.roll10Unlocked = true;
+      saveState();
+      renderDust(true);
+      rollInfo.textContent = "¡Has desbloqueado Roll x10!";
+    } else {
+      rollInfo.textContent = "¡Necesitas 6.000 de Polvo de Espíritu!";
+    }
+    return;
+  }
+
+  setRollingUI(true);
+  rollInfo.textContent = "Girando x10...";
+  setTimeout(()=>{
+    const results = [];
+    let totalDust = 0;
+    for(let i=0;i<10;i++){
+      const sprite = rollOneSprite();
+      const { isNew, dustGained } = applyRollResult(sprite);
+      results.push({ sprite, isNew, dustGained });
+      totalDust += dustGained;
+    }
+    renderDust(true);
+    renderRollStats();
+    saveState();
+    const best = results.reduce((a,b)=> RARITIES[b.sprite.rarity].order > RARITIES[a.sprite.rarity].order ? b : a);
+    setStageImage(best.sprite);
+    const rarityInfo = RARITIES[best.sprite.rarity];
+    rollGlow.className = "roll-glow show bg-" + rarityInfo.cls;
+    rollInfo.innerHTML = "Mejor resultado: <span class='r-" + rarityInfo.cls + "'>" + best.sprite.name + "</span>";
+    showMultiResultModal(results, totalDust);
+    setRollingUI(false);
+  }, 550);
+});
+
+/* =========================================================
+   9. MODAL: RESULTADO ÚNICO
+   ========================================================= */
+const resultModal = document.getElementById("resultModal");
+const resultTag = document.getElementById("resultTag");
+const resultImgWrap = document.getElementById("resultImgWrap");
+const resultImg = document.getElementById("resultImg");
+const resultName = document.getElementById("resultName");
+const resultRarity = document.getElementById("resultRarity");
+const resultDupWrap = document.getElementById("resultDupWrap");
+const resultDustGain = document.getElementById("resultDustGain");
+const btnCloseModal = document.getElementById("btnCloseModal");
+
+function showResultModal(sprite, isNew, dustGained){
+  const rarityInfo = RARITIES[sprite.rarity];
+  resultTag.textContent = isNew ? "¡NUEVO SPRITE!" : "¡SPRITE OBTENIDO!";
+  resultImgWrap.className = "result-img-wrap bg-" + rarityInfo.cls;
+  resultImg.src = sprite.image;
+  resultImg.alt = sprite.name;
+  resultImg.onerror = function(){
+    this.style.display = "none";
+  };
+  resultImg.style.display = "";
+  resultName.textContent = sprite.name;
+  resultRarity.textContent = rarityInfo.label;
+  resultRarity.className = "result-rarity r-" + rarityInfo.cls;
+
+  resultDupWrap.innerHTML = isNew
+    ? ""
+    : "<div class='result-dup'>Duplicado · x" + state.owned[sprite.id].count + "</div>";
+
+  resultDustGain.textContent = "+" + formatNumber(dustGained);
+  resultModal.classList.add("show");
+}
+
+btnCloseModal.addEventListener("click", ()=> resultModal.classList.remove("show"));
+resultModal.addEventListener("click", (e)=>{ if(e.target === resultModal) resultModal.classList.remove("show"); });
+
+/* =========================================================
+   10. MODAL: RESULTADO x10
+   ========================================================= */
+const multiModal = document.getElementById("multiModal");
+const multiGrid = document.getElementById("multiGrid");
+const multiDustGain = document.getElementById("multiDustGain");
+const btnCloseMultiModal = document.getElementById("btnCloseMultiModal");
+
+function showMultiResultModal(results, totalDust){
+  multiGrid.innerHTML = "";
+  results.forEach(r=>{
+    const rarityInfo = RARITIES[r.sprite.rarity];
+    const item = document.createElement("div");
+    item.className = "multi-item border-" + rarityInfo.cls + " bg-" + rarityInfo.cls;
+    const img = document.createElement("img");
+    img.src = r.sprite.image;
+    img.alt = r.sprite.name;
+    img.onerror = function(){ this.style.display = "none"; };
+    const name = document.createElement("div");
+    name.className = "mname r-" + rarityInfo.cls;
+    name.textContent = r.sprite.name + (r.isNew ? "" : " (dup)");
+    item.appendChild(img);
+    item.appendChild(name);
+    multiGrid.appendChild(item);
+  });
+  multiDustGain.textContent = "+" + formatNumber(totalDust);
+  multiModal.classList.add("show");
+}
+
+btnCloseMultiModal.addEventListener("click", ()=> multiModal.classList.remove("show"));
+multiModal.addEventListener("click", (e)=>{ if(e.target === multiModal) multiModal.classList.remove("show"); });
+
+/* =========================================================
+   11. RENDER: INVENTARIO
+   ========================================================= */
+const invGrid = document.getElementById("invGrid");
+const invCountLabel = document.getElementById("invCountLabel");
+
+function renderInventory(){
+  invGrid.innerHTML = "";
+  const ownedCount = Object.keys(state.owned).length;
+  invCountLabel.textContent = ownedCount + " / " + SPRITES.length + " conseguidos";
+
+  const sorted = [...SPRITES].sort((a,b)=>{
+    const ra = RARITIES[a.rarity].order, rb = RARITIES[b.rarity].order;
+    if(ra !== rb) return ra - rb;
+    return b.weight - a.weight;
+  });
+
+  sorted.forEach(sprite=>{
+    const owned = state.owned[sprite.id];
+    const rarityInfo = RARITIES[sprite.rarity];
+    const card = document.createElement("div");
+    card.className = "inv-card border-" + rarityInfo.cls + (owned ? " owned" : " locked");
+
+    if(owned && owned.count > 1){
+      const badge = document.createElement("div");
+      badge.className = "dupbadge";
+      badge.textContent = "x" + owned.count;
+      card.appendChild(badge);
+    }
+
+    const thumb = document.createElement("div");
+    thumb.className = "thumb" + (owned ? " bg-" + rarityInfo.cls : "");
+    if(owned){
+      const img = document.createElement("img");
+      img.src = sprite.image;
+      img.alt = sprite.name;
+      img.onerror = function(){ this.replaceWith(makeFallbackIcon(sprite)); };
+      thumb.appendChild(img);
+    } else {
+      thumb.textContent = "🔒";
+    }
+    card.appendChild(thumb);
+
+    const name = document.createElement("div");
+    name.className = "iname";
+    name.textContent = owned ? sprite.name : "???";
+    card.appendChild(name);
+
+    const rar = document.createElement("div");
+    rar.className = "irarity r-" + rarityInfo.cls;
+    rar.textContent = rarityInfo.label;
+    card.appendChild(rar);
+
+    invGrid.appendChild(card);
+  });
+}
+
+/* =========================================================
+   12. RENDER: UPGRADES
+   ========================================================= */
+const upgradesList = document.getElementById("upgradesList");
+
+function getUpgradeCost(upgradeCfg, level){
+  return Math.round(upgradeCfg.baseCost * Math.pow(upgradeCfg.growth, level));
+}
+
+function renderUpgrades(){
+  upgradesList.innerHTML = "";
+  UPGRADES.forEach(cfg=>{
+    const level = state.upgrades[cfg.key] || 0;
+    const isMax = level >= cfg.maxLevel;
+    const cost = isMax ? null : getUpgradeCost(cfg, level);
+    const canAfford = !isMax && state.dust >= cost;
+
+    const card = document.createElement("div");
+    card.className = "upg-card";
+
+    card.innerHTML = `
+      <div class="upg-top">
+        <div>
+          <div class="upg-name">${cfg.icon} ${cfg.name}</div>
+          <div class="upg-level">Nivel ${level} / ${cfg.maxLevel}</div>
+        </div>
+      </div>
+      <div class="upg-desc">${cfg.desc}</div>
+      <div class="upg-effect">${level > 0 ? cfg.effectLabel(level) : "Aún sin efecto activo"}</div>
+      <div class="upg-bar">
+        <div class="upg-bar-fill" style="width:${Math.min(100,(level/cfg.maxLevel)*100)}%"></div>
+      </div>
+      <div class="upg-bottom">
+        <div class="upg-cost">
+          ${isMax ? "MÁXIMO" : `<img src="https://static.wikia.nocookie.net/fortnite/images/7/76/Sprite_Dust_-_Item_-_Fortnite.png" onerror="this.style.display='none'"> ${formatNumber(cost)}`}
+        </div>
+        <button class="btn-buy" data-key="${cfg.key}" ${(!canAfford || isMax || isPC) ? "disabled" : ""}>
+          ${isMax ? "MAX" : "COMPRAR"}
+        </button>
+      </div>
+    `;
+    upgradesList.appendChild(card);
+  });
+
+  upgradesList.querySelectorAll(".btn-buy").forEach(btn=>{
+    btn.addEventListener("click", ()=> {
+      if(!isPC) buyUpgrade(btn.dataset.key);
+    });
+  });
+}
+
+function buyUpgrade(key){
+  if(isPC) return; // Bloquear si está en PC
+  const cfg = UPGRADES.find(u => u.key === key);
+  if(!cfg) return;
+  const level = state.upgrades[key] || 0;
+  if(level >= cfg.maxLevel) return;
+  const cost = getUpgradeCost(cfg, level);
+  if(state.dust < cost) return;
+
+  state.dust -= cost;
+  state.upgrades[key] = level + 1;
+  saveState();
+  renderDust(true);
+  renderUpgrades();
+}
+
+/* =========================================================
+   13. INICIALIZACIÓN
+   ========================================================= */
+function init(){
+  renderDust(false);
+  renderRoll10Button();
+  renderRollStats();
+  renderInventory();
+  renderUpgrades();
+
+  if(isPC){
+    // Deshabilitar botones principales en caso de estar en PC
+    btnRoll.disabled = true;
+    btnRoll10.disabled = true;
+    rollInfo.textContent = "Acceso bloqueado en PC";
+  }
+}
+
+init();
+
+})();
+</script>
+</body>
+</html>
