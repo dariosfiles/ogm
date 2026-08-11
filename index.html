@@ -1,187 +1,908 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OGMarket</title>
-    <script src="https://sellauth.com/assets/js/sellauth-embed-2.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #1a1a1a;
-            --accent-color: #000000;
-        }
+<meta property="og:title" content="Watch now">
+<meta property="og:description" content="Website protected by Varg Security™">
+<meta property="og:color" content="#FF0000">
+<meta property="og:type" content="website">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protected by Varg</title>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 4rem;
-        }
+<style>
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
 
-        header {
-            padding: 2rem;
-            text-align: center;
-            width: 100%;
-            border-bottom: 1px solid #eaeaea;
-        }
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: white;
+    color: #222;
+    cursor: default;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            letter-spacing: -0.05rem;
-            text-transform: uppercase;
-        }
+input {
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
+}
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 3rem;
-            margin-top: 4rem;
-            max-width: 1200px;
-            padding: 0 2rem;
-        }
+button {
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-        .product-card {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            width: 300px;
-            text-align: center;
-        }
+#loadingScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
 
-        .product-image {
-            width: 100%;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f9f9f9;
-        }
+.spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid #d8d8d8;
+    border-top-color: #555;
+    border-radius: 50%;
+    animation: spin 0.85s linear infinite;
+}
 
-        .product-image img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
-        .product-info h2 {
-            margin: 0.5rem 0;
-            font-size: 1.5rem;
-        }
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+}
 
-        .sellauth-button {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: opacity 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-        }
+#captchaBox,
+#loadingBox {
+    width: 430px;
+    max-width: calc(100% - 30px);
+    background: white;
+    border: 1px solid #aaa;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    cursor: default;
+}
 
-        .sellauth-button:hover {
-            opacity: 0.8;
-        }
+#captchaTitle,
+#loadingTitle {
+    padding: 12px 16px;
+    background: #eeeeee;
+    border-bottom: 1px solid #ccc;
+    font-size: 15px;
+    font-weight: bold;
+}
 
-        .icon { width: 20px; height: 20px; }
-    </style>
+#captchaContent,
+#loadingContent {
+    padding: 22px;
+    cursor: default;
+}
+
+
+}
+
+#captchaContent p {
+    margin: 0 0 15px;
+    color: #555;
+    font-size: 14px;
+}
+
+#vargCaptchaIntro {
+    width: 305px;
+    height: 78px;
+    padding: 15px;
+    border: 1px solid #d6d6d6;
+    background: #fafafa;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #555;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+#vargCaptchaIntro.fadeOut {
+    opacity: 0;
+}
+
+#vargCaptchaText {
+    white-space: nowrap;
+}
+
+#vargCaptchaText.connected {
+    color: #16a34a;
+}
+
+#vargCaptchaSpinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #d6d6d6;
+    border-top-color: #555;
+    border-radius: 50%;
+    animation: vargCaptchaSpin 0.75s linear infinite;
+    transition: opacity 0.4s ease;
+}
+
+#vargCaptchaSpinner.fadeOut {
+    opacity: 0;
+}
+
+@keyframes vargCaptchaSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#verifyRow {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    width: 305px;
+    height: 78px;
+    padding: 15px;
+    border: 1px solid #d6d6d6;
+    background: #fafafa;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    cursor: default;
+}
+
+#verifyCheckbox {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #777;
+    background: white;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+}
+
+#verifyCheckbox.checked {
+    border-color: #4285f4;
+    background: #4285f4;
+}
+
+#verifyCheckbox.checked::after {
+    content: "✓";
+    color: white;
+    font-size: 21px;
+    font-weight: bold;
+}
+
+#verifyText {
+    font-size: 15px;
+    color: #333;
+    cursor: default;
+}
+
+#captchaBrand {
+    margin-left: auto;
+    text-align: center;
+    color: #777;
+    font-size: 10px;
+    line-height: 1.3;
+    cursor: default;
+}
+
+#captchaBrandIcon {
+    width: 26px;
+    height: 26px;
+    margin: 0 auto 3px;
+    border: 3px solid #4285f4;
+    border-radius: 50%;
+}
+
+#challengeBox {
+    display: none;
+    position: relative;
+    width: 100%;
+    margin-top: 15px;
+    padding: 18px;
+    background: white;
+    border: 1px solid #aaa;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+    cursor: default;
+}
+
+#challengeTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+#challengeDescription {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 13px;
+}
+
+#wordCanvas {
+    width: 100%;
+    height: 76px;
+    display: block;
+    border: 1px solid #bbb;
+    background:
+        repeating-linear-gradient(
+            8deg,
+            #f4f4f4 0px,
+            #f4f4f4 2px,
+            #e8e8e8 3px,
+            #f4f4f4 5px
+        );
+    margin-bottom: 12px;
+    cursor: default;
+}
+
+#answerRow {
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+}
+
+#captchaAnswer {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 7px 9px;
+    border: 1px solid #999;
+    font-size: 15px;
+    outline: none;
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+#captchaAnswer:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 1px #4285f4;
+}
+
+#enterButton {
+    height: 38px;
+    padding: 0 18px;
+    border: 1px solid #2868c7;
+    background: #4285f4;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#enterButton:hover {
+    background: #3367d6;
+}
+
+#captchaError {
+    display: none;
+    margin-top: 9px;
+    color: #d93025;
+    font-size: 12px;
+}
+
+#captchaFooter {
+    margin-top: 13px;
+    font-size: 10px;
+    color: #888;
+}
+
+#loadingContent p {
+    margin: 0 0 15px;
+    color: #555;
+    font-size: 14px;
+}
+
+#progressContainer {
+    width: 100%;
+    height: 20px;
+    border: 1px solid #aaa;
+    background: #eeeeee;
+    overflow: hidden;
+}
+
+#progressBar {
+    width: 0%;
+    height: 100%;
+    background: #4285f4;
+    transition: width 0.05s linear;
+}
+
+#progressText {
+    margin-top: 9px;
+    text-align: right;
+    color: #777;
+    font-size: 12px;
+}
+
+#accessButton {
+    display: none;
+    width: 100%;
+    margin-top: 14px;
+    height: 40px;
+    border: 1px solid #2868c7;
+    background: #4285f4;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#accessButton:hover {
+    background: #3367d6;
+}
+
+#screamerScreen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: black;
+    overflow: hidden;
+    z-index: 999999;
+}
+
+#screamerImage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+    user-select: none;
+    pointer-events: none;
+}
+</style>
 </head>
+
 <body>
 
-    <header>
-        <h1>OGMarket</h1>
-    </header>
+<div id="loadingScreen">
+    <div class="spinner"></div>
+</div>
 
-    <main class="container">
-        <div class="product-card">
-            <div class="product-image">
-                <img src="https://static.wikia.nocookie.net/stealabr/images/3/34/Skibidi_toilet.png/revision/latest?cb=20251227221221" alt="Skibidi Toilet">
-            </div>
-            <div class="product-info">
-                <h2>Skibidi Toilet</h2>
-                <button
-                  type="button"
-                  class="sellauth-button"
-                  onclick="window.sellAuthEmbed.checkout(this, { 
-                    cart: [{ productId: 667825, variantId: 1055741, quantity: 1 }],
-                    shopId: 227377,
-                    modal: true
-                  })"
-                >
-                  <span>Buy Now</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="currentColor" viewBox="0 0 256 256"><path d="M230.14,58.87A8,8,0,0,0,224,56H62.68L56.6,22.57A8,8,0,0,0,48.73,16H24a8,8,0,0,0,0,16h18L67.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,160,204a28,28,0,1,0,28-28H91.17a8,8,0,0,1-7.87-6.57L80.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,230.14,58.87ZM104,204a12,12,0,1,1-12-12A12,12,0,0,1,104,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,200,204Zm4-74.57A8,8,0,0,1,196.1,136H77.22L65.59,72H214.41Z"></path></svg>
-                </button>
-            </div>
+<div class="overlay" id="captchaOverlay">
+    <div id="captchaBox">
+
+        <div id="captchaTitle">
+            Security Verification
         </div>
 
-        <div class="product-card">
-            <div class="product-image">
-                <img src="https://static.wikia.nocookie.net/stealabr/images/5/58/Strawberryelephant.png/revision/latest?cb=20260317001745" alt="Strawberry Elephant">
+        <div id="captchaContent">
+
+            <p>
+                Please verify that you are not a robot.
+            </p>
+
+            <div id="vargCaptchaIntro">
+                <span id="vargCaptchaText">Varg Security</span>
+                <span id="vargCaptchaSpinner" aria-hidden="true"></span>
             </div>
-            <div class="product-info">
-                <h2>Strawberry Elephant</h2>
-                <button
-                  type="button"
-                  class="sellauth-button"
-                  onclick="window.sellAuthEmbed.checkout(this, { 
-                    cart: [{ productId: 735107, variantId: 1200365, quantity: 1 }],
-                    shopId: 227377,
-                    modal: true
-                  })"
-                >
-                  <span>Buy Now</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="currentColor" viewBox="0 0 256 256"><path d="M230.14,58.87A8,8,0,0,0,224,56H62.68L56.6,22.57A8,8,0,0,0,48.73,16H24a8,8,0,0,0,0,16h18L67.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,160,204a28,28,0,1,0,28-28H91.17a8,8,0,0,1-7.87-6.57L80.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,230.14,58.87ZM104,204a12,12,0,1,1-12-12A12,12,0,0,1,104,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,200,204Zm4-74.57A8,8,0,0,1,196.1,136H77.22L65.59,72H214.41Z"></path></svg>
-                </button>
+
+            <div id="verifyRow">
+
+                <div id="verifyCheckbox"></div>
+
+                <div id="verifyText">
+                    I'm not a robot
+                </div>
+
+                <div id="captchaBrand">
+                    <div id="captchaBrandIcon"></div>
+                    Varg<br>
+                    Security
+                </div>
+
             </div>
+
+            <div id="challengeBox">
+
+                <div id="challengeTitle">
+                    Enter the text you see
+                </div>
+
+                <div id="challengeDescription">
+                    Type the characters shown below to complete verification.
+                </div>
+
+                <canvas id="wordCanvas" width="310" height="76"></canvas>
+
+                <div id="answerRow">
+
+                    <input
+                        id="captchaAnswer"
+                        type="text"
+                        autocomplete="off"
+                        spellcheck="false"
+                        maxlength="8"
+                        placeholder="Enter text"
+                    >
+
+                    <button id="enterButton">
+                        ENTER
+                    </button>
+
+                </div>
+
+                <div id="captchaError">
+                    Incorrect text. Please try again.
+                </div>
+
+                <div id="captchaFooter">
+                    Security verification
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="loadingOverlay">
+    <div id="loadingBox">
+
+        <div id="loadingTitle">
+            Loading
         </div>
 
-        <div class="product-card">
-            <div class="product-image">
-                <img src="https://static.wikia.nocookie.net/stealabr/images/d/d2/John_Pork.png/revision/latest?cb=20260502233229" alt="John Pork">
-            </div>
-            <div class="product-info">
-                <h2>John Pork</h2>
-                <button
-                  type="button"
-                  class="sellauth-button"
-                  onclick="window.sellAuthEmbed.checkout(this, { 
-                    cart: [{ productId: 735114, variantId: 1200380, quantity: 1 }],
-                    shopId: 227377,
-                    modal: true
-                  })"
-                >
-                  <span>Buy Now</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="currentColor" viewBox="0 0 256 256"><path d="M230.14,58.87A8,8,0,0,0,224,56H62.68L56.6,22.57A8,8,0,0,0,48.73,16H24a8,8,0,0,0,0,16h18L67.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,160,204a28,28,0,1,0,28-28H91.17a8,8,0,0,1-7.87-6.57L80.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,230.14,58.87ZM104,204a12,12,0,1,1-12-12A12,12,0,0,1,104,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,200,204Zm4-74.57A8,8,0,0,1,196.1,136H77.22L65.59,72H214.41Z"></path></svg>
-                </button>
-            </div>
-        </div>
-    </main>
+        <div id="loadingContent">
 
-    <script>
-        // Trigger alert with warning icon after 1 second
-        setTimeout(() => {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Welcome!',
-                text: 'We are currently working on the site, please note that, there will be a lot of more products when we are done :)',
-                confirmButtonText: 'Great',
-                confirmButtonColor: '#000000'
-            });
-        }, 0);
-    </script>
+            <p>
+                Please wait while the page loads.
+            </p>
+
+            <div id="progressContainer">
+                <div id="progressBar"></div>
+            </div>
+
+            <div id="progressText">
+                0%
+            </div>
+
+            <button id="accessButton" type="button">
+                Access
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("contextmenu", function(event) {
+    event.preventDefault();
+});
+
+document.addEventListener("selectstart", function(event) {
+    if (event.target.id !== "captchaAnswer") {
+        event.preventDefault();
+    }
+});
+
+const normalImage =
+    "https://raw.githubusercontent.com/dariosfiles/ogm/refs/heads/main/screamer/jeffthekiller1.png";
+
+const invertedImage =
+    "https://raw.githubusercontent.com/dariosfiles/ogm/refs/heads/main/screamer/jeffthekiller2.png";
+
+const screamURL =
+    "https://raw.githubusercontent.com/dariosfiles/ogm/refs/heads/main/screamer/scream.mp3";
+
+const normalPreload = new Image();
+const invertedPreload = new Image();
+
+normalPreload.src = normalImage;
+invertedPreload.src = invertedImage;
+
+const scream = new Audio();
+scream.src = screamURL;
+scream.preload = "auto";
+
+setTimeout(function() {
+    document.getElementById("loadingScreen").remove();
+    document.getElementById("captchaOverlay").style.display = "flex";
+
+    const intro =
+        document.getElementById("vargCaptchaIntro");
+
+    const introText =
+        document.getElementById("vargCaptchaText");
+
+    const introSpinner =
+        document.getElementById("vargCaptchaSpinner");
+
+    const verifyRow =
+        document.getElementById("verifyRow");
+
+    // The Security Verification popup is already visible;
+    // only the small CAPTCHA-area content is being animated.
+    setTimeout(function() {
+        introSpinner.classList.add("fadeOut");
+
+        let value = introText.textContent;
+
+        const deleteTimer = setInterval(function() {
+            value = value.slice(0, -1);
+            introText.textContent = value;
+
+            if (value.length === 0) {
+                clearInterval(deleteTimer);
+
+                introText.textContent = "Connected!";
+                introText.classList.add("connected");
+
+                setTimeout(function() {
+                    intro.classList.add("fadeOut");
+
+                    setTimeout(function() {
+                        intro.style.display = "none";
+                        verifyRow.style.display = "flex";
+                    }, 500);
+                }, 500);
+            }
+        }, 35);
+    }, 1500);
+}, 3000);
+
+const verifyCheckbox =
+    document.getElementById("verifyCheckbox");
+
+const challengeBox =
+    document.getElementById("challengeBox");
+
+const captchaAnswer =
+    document.getElementById("captchaAnswer");
+
+const enterButton =
+    document.getElementById("enterButton");
+
+const captchaError =
+    document.getElementById("captchaError");
+
+const canvas =
+    document.getElementById("wordCanvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+const captchaWords = [
+    "K7mP2",
+    "xR84Q",
+    "N5vK9",
+    "p7W3z",
+    "B6qT8",
+    "m4Xr7",
+    "Q9cL2",
+    "H3nV6",
+    "r8Zp4",
+    "T6kM3"
+];
+
+let currentWord = "";
+
+function generateCaptcha() {
+    currentWord =
+        captchaWords[
+            Math.floor(Math.random() * captchaWords.length)
+        ];
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.fillStyle = "#f3f3f3";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    for (let i = 0; i < 9; i++) {
+        ctx.beginPath();
+
+        ctx.moveTo(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height
+        );
+
+        ctx.bezierCurveTo(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height,
+            Math.random() * canvas.width,
+            Math.random() * canvas.height,
+            Math.random() * canvas.width,
+            Math.random() * canvas.height
+        );
+
+        ctx.strokeStyle =
+            "rgba(60,60,60," +
+            (0.15 + Math.random() * 0.35) +
+            ")";
+
+        ctx.lineWidth =
+            1 + Math.random() * 2;
+
+        ctx.stroke();
+    }
+
+    for (let i = 0; i < 80; i++) {
+        ctx.beginPath();
+
+        ctx.arc(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height,
+            Math.random() * 1.7,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            "rgba(70,70,70," +
+            (0.15 + Math.random() * 0.4) +
+            ")";
+
+        ctx.fill();
+    }
+
+    const startX = 30;
+
+    for (let i = 0; i < currentWord.length; i++) {
+        const letter = currentWord[i];
+
+        ctx.save();
+
+        const x =
+            startX + i * 49;
+
+        const y =
+            47 + (Math.random() * 12 - 6);
+
+        const rotation =
+            Math.random() * 0.5 - 0.25;
+
+        const scaleX =
+            0.85 + Math.random() * 0.35;
+
+        const scaleY =
+            0.85 + Math.random() * 0.3;
+
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.scale(scaleX, scaleY);
+
+        ctx.font =
+            "bold " +
+            (38 + Math.floor(Math.random() * 8)) +
+            "px Arial";
+
+        ctx.fillStyle = "#333";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+            letter,
+            0,
+            0
+        );
+
+        ctx.restore();
+    }
+}
+
+verifyCheckbox.addEventListener("click", function(event) {
+    event.stopPropagation();
+
+    if (verifyCheckbox.classList.contains("checked")) {
+        return;
+    }
+
+    verifyCheckbox.classList.add("checked");
+
+    generateCaptcha();
+
+    challengeBox.style.display = "block";
+
+    requestAnimationFrame(function() {
+        captchaAnswer.focus();
+    });
+});
+
+function verifyCaptcha() {
+    const answer =
+        captchaAnswer.value.trim();
+
+    if (
+        answer.toLowerCase() ===
+        currentWord.toLowerCase()
+    ) {
+        captchaError.style.display = "none";
+        startLoading();
+    } else {
+        captchaError.style.display = "block";
+        captchaAnswer.value = "";
+        generateCaptcha();
+        captchaAnswer.focus();
+    }
+}
+
+enterButton.addEventListener(
+    "click",
+    verifyCaptcha
+);
+
+captchaAnswer.addEventListener(
+    "keydown",
+    function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyCaptcha();
+        }
+    }
+);
+
+function startLoading() {
+    document.getElementById("captchaOverlay").style.display = "none";
+    document.getElementById("loadingOverlay").style.display = "flex";
+
+    const progressBar =
+        document.getElementById("progressBar");
+
+    const progressText =
+        document.getElementById("progressText");
+
+    const accessButton =
+        document.getElementById("accessButton");
+
+    accessButton.style.display = "none";
+
+    const startTime = performance.now();
+    const totalDuration = 3000;
+
+    function updateProgress(currentTime) {
+        const elapsed =
+            currentTime - startTime;
+
+        const progress =
+            Math.min(
+                elapsed / totalDuration,
+                1
+            );
+
+        const percent =
+            Math.floor(progress * 100);
+
+        progressBar.style.width =
+            percent + "%";
+
+        progressText.textContent =
+            percent + "%";
+
+        if (progress < 1) {
+            requestAnimationFrame(updateProgress);
+        } else {
+            accessButton.style.display = "block";
+            accessButton.focus();
+        }
+    }
+
+    requestAnimationFrame(updateProgress);
+}
+
+document.getElementById("accessButton").addEventListener(
+    "click",
+    function() {
+        startScreamer();
+    }
+);
+
+async function startScreamer() {
+    document.getElementById("loadingOverlay").style.display = "none";
+
+    document.body.innerHTML = "";
+
+    const screen =
+        document.createElement("div");
+
+    screen.id =
+        "screamerScreen";
+
+    const image =
+        document.createElement("img");
+
+    image.id =
+        "screamerImage";
+
+    image.src =
+        normalImage;
+
+    image.draggable =
+        false;
+
+    screen.appendChild(image);
+
+    document.body.appendChild(screen);
+
+    try {
+        if (screen.requestFullscreen) {
+            await screen.requestFullscreen();
+        }
+    } catch (error) {
+        console.log(
+            "Fullscreen was unavailable:",
+            error
+        );
+    }
+
+    try {
+        scream.currentTime = 0;
+        await scream.play();
+    } catch (error) {
+        console.log(
+            "Audio playback was blocked:",
+            error
+        );
+    }
+
+    window.addEventListener(
+        "beforeunload",
+        function(event) {
+            event.preventDefault();
+            event.returnValue = "";
+        }
+    );
+
+    let showingNormal = true;
+
+    setInterval(
+        function() {
+            showingNormal = !showingNormal;
+
+            image.src =
+                showingNormal
+                    ? normalImage
+                    : invertedImage;
+        },
+        30
+    );
+}
+</script>
+
 </body>
 </html>
