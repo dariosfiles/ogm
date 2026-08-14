@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Almost there!</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(124, 92, 255, 0.18), transparent 35%),
+        #08080c;
+      color: #fff;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    .card {
+      width: min(430px, calc(100% - 32px));
+      padding: 42px 32px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      background: rgba(18, 18, 25, 0.82);
+      box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      animation: cardIn 0.55s ease-out;
+    }
+
+    .icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 17px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      box-shadow: 0 12px 35px rgba(99, 102, 241, 0.3);
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    h1 {
+      font-size: 31px;
+      font-weight: 750;
+      letter-spacing: -0.8px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #92929d;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .finish {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 27px;
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-radius: 13px;
+      color: white;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+    }
+
+    .finish:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.08);
+      box-shadow: 0 14px 35px rgba(99, 102, 241, 0.4);
+    }
+
+    .finish:active {
+      transform: translateY(-1px);
+    }
+
+    .denied {
+      color: #ff6b81;
+    }
+
+    .denied-icon {
+      background: linear-gradient(135deg, #ef4444, #be123c);
+      box-shadow: 0 12px 35px rgba(239, 68, 68, 0.25);
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="card" id="card">
+    <div class="icon" id="icon">✓</div>
+
+    <h1 id="title">Almost there!</h1>
+
+    <p id="description">
+      Complete the final step below to continue.
+    </p>
+
+    <a
+      id="finishButton"
+      class="finish"
+      href="https://linkvertise.com/8368774/IgzmuXqHEmcU?o=sharing"
+    >
+      Finish
+    </a>
+  </main>
+
+  <script>
+    /*
+      Accept:
+        https://linkvertise.com/...
+        https://publisher.linkvertise.com/...
+        https://anything.linkvertise.com/...
+
+      Reject:
+        Direct visits
+        Other websites
+        Empty referrer
+    */
+
+    const referrer = document.referrer;
+
+    let allowed = false;
+
+    try {
+      if (referrer) {
+        const referrerURL = new URL(referrer);
+
+        const hostname = referrerURL.hostname.toLowerCase();
+
+        allowed =
+          hostname === "linkvertise.com" ||
+          hostname.endsWith(".linkvertise.com");
+      }
+    } catch (error) {
+      allowed = false;
+    }
+
+    if (!allowed) {
+      document.title = "Access denied";
+
+      document.getElementById("icon").textContent = "!";
+      document.getElementById("icon").classList.add("denied-icon");
+
+      document.getElementById("title").textContent = "Access denied";
+      document.getElementById("title").classList.add("denied");
+
+      document.getElementById("description").textContent =
+        "Please do not bypass!";
+
+      document.getElementById("finishButton").style.display = "none";
+    }
+  </script>
+
+</body>
+</html>
