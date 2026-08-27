@@ -1,907 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta property="og:title" content="Watch now">
-<meta property="og:description" content="Website protected by Varg Security™">
-<meta property="og:color" content="#FF0000">
-<meta property="og:type" content="website">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Protected by Varg</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>✅ Watch for free & online - Ready!</title>
 <style>
-* {
-    box-sizing: border-box;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+font-family:Inter,Arial,sans-serif;
+background:radial-gradient(circle at 50% -10%,#292929 0,#111 42%,#070707 100%);
+color:#fff;
+overflow:hidden
 }
-
-html,
-body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
-    background: white;
-    color: #222;
-    cursor: default;
+body:before{
+content:"";
+position:fixed;
+width:500px;
+height:500px;
+background:#ff005022;
+filter:blur(120px);
+top:-250px;
+left:50%;
+transform:translateX(-50%);
+pointer-events:none
 }
-
-input {
-    user-select: text;
-    -webkit-user-select: text;
-    cursor: text;
+.card{
+width:min(440px,calc(100% - 30px));
+padding:38px 32px 30px;
+border:1px solid #303030;
+border-radius:24px;
+background:rgba(18,18,18,.88);
+box-shadow:0 30px 100px #000b,inset 0 1px #ffffff08;
+backdrop-filter:blur(25px);
+animation:enter .55s ease
 }
-
-button {
-    user-select: none;
-    -webkit-user-select: none;
+@keyframes enter{
+from{opacity:0;transform:translateY(18px) scale(.97)}
+to{opacity:1;transform:translateY(0) scale(1)}
 }
-
-#loadingScreen {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.82);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+.logo{
+width:68px;
+height:68px;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:0 auto 21px;
+border-radius:20px;
+background:linear-gradient(135deg,#ff315c,#ff0050);
+box-shadow:0 12px 40px #ff005033;
+font-size:31px
 }
-
-.spinner {
-    width: 44px;
-    height: 44px;
-    border: 4px solid #d8d8d8;
-    border-top-color: #555;
-    border-radius: 50%;
-    animation: spin 0.85s linear infinite;
+h1{
+text-align:center;
+font-size:28px;
+font-weight:750;
+letter-spacing:-.8px
 }
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+.sub{
+margin:9px auto 29px;
+max-width:330px;
+text-align:center;
+color:#929292;
+font-size:14px;
+line-height:1.55
 }
-
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 5000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.35);
+.step{
+padding:17px;
+border-radius:15px;
+border:1px solid #303030;
+background:#151515
 }
-
-#captchaBox,
-#loadingBox {
-    width: 430px;
-    max-width: calc(100% - 30px);
-    background: white;
-    border: 1px solid #aaa;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
-    cursor: default;
+.row{
+display:flex;
+align-items:center;
+gap:11px
 }
-
-#captchaTitle,
-#loadingTitle {
-    padding: 12px 16px;
-    background: #eeeeee;
-    border-bottom: 1px solid #ccc;
-    font-size: 15px;
-    font-weight: bold;
+.number{
+width:28px;
+height:28px;
+flex-shrink:0;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:50%;
+background:#292929;
+color:#bdbdbd;
+font-size:12px;
+font-weight:700
 }
-
-#captchaContent,
-#loadingContent {
-    padding: 22px;
-    cursor: default;
+.title{
+font-size:14px;
+font-weight:650
 }
-
-
+.desc{
+margin:8px 0 0 39px;
+font-size:12px;
+color:#6f6f6f
 }
-
-#captchaContent p {
-    margin: 0 0 15px;
-    color: #555;
-    font-size: 14px;
+button{
+width:100%;
+height:50px;
+margin-top:18px;
+border:0;
+border-radius:13px;
+background:linear-gradient(135deg,#ff315c,#ff0050);
+color:#fff;
+font-size:14px;
+font-weight:700;
+cursor:pointer;
+transition:.2s;
+box-shadow:0 12px 30px #ff005022
 }
-
-#vargCaptchaIntro {
-    width: 305px;
-    height: 78px;
-    padding: 15px;
-    border: 1px solid #d6d6d6;
-    background: #fafafa;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #555;
-    opacity: 1;
-    transition: opacity 0.5s ease;
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 15px 38px #ff005038
 }
-
-#vargCaptchaIntro.fadeOut {
-    opacity: 0;
+button:active{transform:scale(.985)}
+button.loading{
+background:#242424;
+box-shadow:none;
+cursor:default;
+transform:none
 }
-
-#vargCaptchaText {
-    white-space: nowrap;
+.status{
+display:none;
+margin-top:19px;
+padding:14px 15px;
+border-radius:13px;
+border:1px solid #2e2e2e;
+background:#111;
+color:#aaa;
+font-size:13px;
+text-align:center
 }
-
-#vargCaptchaText.connected {
-    color: #16a34a;
+.spinner{
+display:inline-block;
+width:16px;
+height:16px;
+margin-right:8px;
+vertical-align:-3px;
+border:2px solid #3c3c3c;
+border-top-color:#fff;
+border-radius:50%;
+animation:spin .75s linear infinite
 }
-
-#vargCaptchaSpinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid #d6d6d6;
-    border-top-color: #555;
-    border-radius: 50%;
-    animation: vargCaptchaSpin 0.75s linear infinite;
-    transition: opacity 0.4s ease;
-}
-
-#vargCaptchaSpinner.fadeOut {
-    opacity: 0;
-}
-
-@keyframes vargCaptchaSpin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-#verifyRow {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    width: 305px;
-    height: 78px;
-    padding: 15px;
-    border: 1px solid #d6d6d6;
-    background: #fafafa;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    cursor: default;
-}
-
-#verifyCheckbox {
-    width: 28px;
-    height: 28px;
-    border: 2px solid #777;
-    background: white;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
-}
-
-#verifyCheckbox.checked {
-    border-color: #4285f4;
-    background: #4285f4;
-}
-
-#verifyCheckbox.checked::after {
-    content: "✓";
-    color: white;
-    font-size: 21px;
-    font-weight: bold;
-}
-
-#verifyText {
-    font-size: 15px;
-    color: #333;
-    cursor: default;
-}
-
-#captchaBrand {
-    margin-left: auto;
-    text-align: center;
-    color: #777;
-    font-size: 10px;
-    line-height: 1.3;
-    cursor: default;
-}
-
-#captchaBrandIcon {
-    width: 26px;
-    height: 26px;
-    margin: 0 auto 3px;
-    border: 3px solid #4285f4;
-    border-radius: 50%;
-}
-
-#challengeBox {
-    display: none;
-    position: relative;
-    width: 100%;
-    margin-top: 15px;
-    padding: 18px;
-    background: white;
-    border: 1px solid #aaa;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
-    cursor: default;
-}
-
-#challengeTitle {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 7px;
-}
-
-#challengeDescription {
-    font-size: 13px;
-    color: #555;
-    line-height: 1.4;
-    margin-bottom: 13px;
-}
-
-#wordCanvas {
-    width: 100%;
-    height: 76px;
-    display: block;
-    border: 1px solid #bbb;
-    background:
-        repeating-linear-gradient(
-            8deg,
-            #f4f4f4 0px,
-            #f4f4f4 2px,
-            #e8e8e8 3px,
-            #f4f4f4 5px
-        );
-    margin-bottom: 12px;
-    cursor: default;
-}
-
-#answerRow {
-    display: flex;
-    align-items: stretch;
-    gap: 7px;
-}
-
-#captchaAnswer {
-    flex: 1;
-    min-width: 0;
-    height: 38px;
-    padding: 7px 9px;
-    border: 1px solid #999;
-    font-size: 15px;
-    outline: none;
-    cursor: text;
-    user-select: text;
-    -webkit-user-select: text;
-}
-
-#captchaAnswer:focus {
-    border-color: #4285f4;
-    box-shadow: 0 0 0 1px #4285f4;
-}
-
-#enterButton {
-    height: 38px;
-    padding: 0 18px;
-    border: 1px solid #2868c7;
-    background: #4285f4;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#enterButton:hover {
-    background: #3367d6;
-}
-
-#captchaError {
-    display: none;
-    margin-top: 9px;
-    color: #d93025;
-    font-size: 12px;
-}
-
-#captchaFooter {
-    margin-top: 13px;
-    font-size: 10px;
-    color: #888;
-}
-
-#loadingContent p {
-    margin: 0 0 15px;
-    color: #555;
-    font-size: 14px;
-}
-
-#progressContainer {
-    width: 100%;
-    height: 20px;
-    border: 1px solid #aaa;
-    background: #eeeeee;
-    overflow: hidden;
-}
-
-#progressBar {
-    width: 0%;
-    height: 100%;
-    background: #4285f4;
-    transition: width 0.05s linear;
-}
-
-#progressText {
-    margin-top: 9px;
-    text-align: right;
-    color: #777;
-    font-size: 12px;
-}
-
-#accessButton {
-    display: none;
-    width: 100%;
-    margin-top: 14px;
-    height: 40px;
-    border: 1px solid #2868c7;
-    background: #4285f4;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#accessButton:hover {
-    background: #3367d6;
-}
-
-#screamerScreen {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: black;
-    overflow: hidden;
-    z-index: 999999;
-}
-
-#screamerImage {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center center;
-    display: block;
-    user-select: none;
-    pointer-events: none;
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer{
+margin-top:22px;
+text-align:center;
+color:#4f4f4f;
+font-size:11px
 }
 </style>
 </head>
-
 <body>
 
-<div id="loadingScreen">
-    <div class="spinner"></div>
+<div class="card">
+<div class="logo">✓</div>
+<h1>Watch for free</h1>
+<p class="sub">Complete the step below to unlock your free access.</p>
+
+<div class="step">
+<div class="row">
+<div class="number">1</div>
+<div class="title">Follow on TikTok</div>
+</div>
+<div class="desc">Follow @latenightdario to continue.</div>
 </div>
 
-<div class="overlay" id="captchaOverlay">
-    <div id="captchaBox">
+<button id="unlockBtn">Follow on TikTok</button>
 
-        <div id="captchaTitle">
-            Security Verification
-        </div>
-
-        <div id="captchaContent">
-
-            <p>
-                Please verify that you are not a robot.
-            </p>
-
-            <div id="vargCaptchaIntro">
-                <span id="vargCaptchaText">Varg Security</span>
-                <span id="vargCaptchaSpinner" aria-hidden="true"></span>
-            </div>
-
-            <div id="verifyRow">
-
-                <div id="verifyCheckbox"></div>
-
-                <div id="verifyText">
-                    I'm not a robot
-                </div>
-
-                <div id="captchaBrand">
-                    <div id="captchaBrandIcon"></div>
-                    Varg<br>
-                    Security
-                </div>
-
-            </div>
-
-            <div id="challengeBox">
-
-                <div id="challengeTitle">
-                    Enter the text you see
-                </div>
-
-                <div id="challengeDescription">
-                    Type the characters shown below to complete verification.
-                </div>
-
-                <canvas id="wordCanvas" width="310" height="76"></canvas>
-
-                <div id="answerRow">
-
-                    <input
-                        id="captchaAnswer"
-                        type="text"
-                        autocomplete="off"
-                        spellcheck="false"
-                        maxlength="8"
-                        placeholder="Enter text"
-                    >
-
-                    <button id="enterButton">
-                        ENTER
-                    </button>
-
-                </div>
-
-                <div id="captchaError">
-                    Incorrect text. Please try again.
-                </div>
-
-                <div id="captchaFooter">
-                    Security verification
-                </div>
-
-            </div>
-
-        </div>
-    </div>
+<div class="status" id="status">
+<span class="spinner"></span>
+<span>Verifying...</span>
 </div>
 
-<div class="overlay" id="loadingOverlay">
-    <div id="loadingBox">
-
-        <div id="loadingTitle">
-            Loading
-        </div>
-
-        <div id="loadingContent">
-
-            <p>
-                Please wait while the page loads.
-            </p>
-
-            <div id="progressContainer">
-                <div id="progressBar"></div>
-            </div>
-
-            <div id="progressText">
-                0%
-            </div>
-
-            <button id="accessButton" type="button">
-                Access
-            </button>
-
-        </div>
-    </div>
+<div class="footer">Secure verification · Free access</div>
 </div>
 
 <script>
-document.addEventListener("contextmenu", function(event) {
-    event.preventDefault();
-});
-
-document.addEventListener("selectstart", function(event) {
-    if (event.target.id !== "captchaAnswer") {
-        event.preventDefault();
-    }
-});
-
-const normalImage =
-    "https://raw.githubusercontent.com/dariosfiles/ogm/refs/heads/main/screamer/jeffthekiller1.png";
-
-const invertedImage =
-    "https://raw.githubusercontent.com/dariosfiles/ogm/refs/heads/main/screamer/jeffthekiller2.png";
-
-const screamURL =
-    "https://raw.githubusercontent.com/dariosfiles/ogm/refs/heads/main/screamer/scream.mp3";
-
-const normalPreload = new Image();
-const invertedPreload = new Image();
-
-normalPreload.src = normalImage;
-invertedPreload.src = invertedImage;
-
-const scream = new Audio();
-scream.src = screamURL;
-scream.preload = "auto";
-
-setTimeout(function() {
-    document.getElementById("loadingScreen").remove();
-    document.getElementById("captchaOverlay").style.display = "flex";
-
-    const intro =
-        document.getElementById("vargCaptchaIntro");
-
-    const introText =
-        document.getElementById("vargCaptchaText");
-
-    const introSpinner =
-        document.getElementById("vargCaptchaSpinner");
-
-    const verifyRow =
-        document.getElementById("verifyRow");
-
-    // The Security Verification popup is already visible;
-    // only the small CAPTCHA-area content is being animated.
-    setTimeout(function() {
-        introSpinner.classList.add("fadeOut");
-
-        let value = introText.textContent;
-
-        const deleteTimer = setInterval(function() {
-            value = value.slice(0, -1);
-            introText.textContent = value;
-
-            if (value.length === 0) {
-                clearInterval(deleteTimer);
-
-                introText.textContent = "Connected!";
-                introText.classList.add("connected");
-
-                setTimeout(function() {
-                    intro.classList.add("fadeOut");
-
-                    setTimeout(function() {
-                        intro.style.display = "none";
-                        verifyRow.style.display = "flex";
-                    }, 500);
-                }, 500);
-            }
-        }, 35);
-    }, 1500);
-}, 3000);
-
-const verifyCheckbox =
-    document.getElementById("verifyCheckbox");
-
-const challengeBox =
-    document.getElementById("challengeBox");
-
-const captchaAnswer =
-    document.getElementById("captchaAnswer");
-
-const enterButton =
-    document.getElementById("enterButton");
-
-const captchaError =
-    document.getElementById("captchaError");
-
-const canvas =
-    document.getElementById("wordCanvas");
-
-const ctx =
-    canvas.getContext("2d");
-
-const captchaWords = [
-    "K7mP2",
-    "xR84Q",
-    "N5vK9",
-    "p7W3z",
-    "B6qT8",
-    "m4Xr7",
-    "Q9cL2",
-    "H3nV6",
-    "r8Zp4",
-    "T6kM3"
-];
-
-let currentWord = "";
-
-function generateCaptcha() {
-    currentWord =
-        captchaWords[
-            Math.floor(Math.random() * captchaWords.length)
-        ];
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    ctx.fillStyle = "#f3f3f3";
-
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    for (let i = 0; i < 9; i++) {
-        ctx.beginPath();
-
-        ctx.moveTo(
-            Math.random() * canvas.width,
-            Math.random() * canvas.height
-        );
-
-        ctx.bezierCurveTo(
-            Math.random() * canvas.width,
-            Math.random() * canvas.height,
-            Math.random() * canvas.width,
-            Math.random() * canvas.height,
-            Math.random() * canvas.width,
-            Math.random() * canvas.height
-        );
-
-        ctx.strokeStyle =
-            "rgba(60,60,60," +
-            (0.15 + Math.random() * 0.35) +
-            ")";
-
-        ctx.lineWidth =
-            1 + Math.random() * 2;
-
-        ctx.stroke();
-    }
-
-    for (let i = 0; i < 80; i++) {
-        ctx.beginPath();
-
-        ctx.arc(
-            Math.random() * canvas.width,
-            Math.random() * canvas.height,
-            Math.random() * 1.7,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            "rgba(70,70,70," +
-            (0.15 + Math.random() * 0.4) +
-            ")";
-
-        ctx.fill();
-    }
-
-    const startX = 30;
-
-    for (let i = 0; i < currentWord.length; i++) {
-        const letter = currentWord[i];
-
-        ctx.save();
-
-        const x =
-            startX + i * 49;
-
-        const y =
-            47 + (Math.random() * 12 - 6);
-
-        const rotation =
-            Math.random() * 0.5 - 0.25;
-
-        const scaleX =
-            0.85 + Math.random() * 0.35;
-
-        const scaleY =
-            0.85 + Math.random() * 0.3;
-
-        ctx.translate(x, y);
-        ctx.rotate(rotation);
-        ctx.scale(scaleX, scaleY);
-
-        ctx.font =
-            "bold " +
-            (38 + Math.floor(Math.random() * 8)) +
-            "px Arial";
-
-        ctx.fillStyle = "#333";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        ctx.fillText(
-            letter,
-            0,
-            0
-        );
-
-        ctx.restore();
-    }
-}
-
-verifyCheckbox.addEventListener("click", function(event) {
-    event.stopPropagation();
-
-    if (verifyCheckbox.classList.contains("checked")) {
-        return;
-    }
-
-    verifyCheckbox.classList.add("checked");
-
-    generateCaptcha();
-
-    challengeBox.style.display = "block";
-
-    requestAnimationFrame(function() {
-        captchaAnswer.focus();
-    });
-});
-
-function verifyCaptcha() {
-    const answer =
-        captchaAnswer.value.trim();
-
-    if (
-        answer.toLowerCase() ===
-        currentWord.toLowerCase()
-    ) {
-        captchaError.style.display = "none";
-        startLoading();
-    } else {
-        captchaError.style.display = "block";
-        captchaAnswer.value = "";
-        generateCaptcha();
-        captchaAnswer.focus();
-    }
-}
-
-enterButton.addEventListener(
-    "click",
-    verifyCaptcha
+const button=document.getElementById("unlockBtn");
+const status=document.getElementById("status");
+
+button.addEventListener("click",function(){
+if(button.disabled)return;
+
+const tiktokTab=window.open(
+"https://www.tiktok.com/@latenightdario",
+"_blank"
 );
 
-captchaAnswer.addEventListener(
-    "keydown",
-    function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            verifyCaptcha();
-        }
-    }
-);
+button.disabled=true;
+button.classList.add("loading");
+button.textContent="Verifying...";
+status.style.display="block";
 
-function startLoading() {
-    document.getElementById("captchaOverlay").style.display = "none";
-    document.getElementById("loadingOverlay").style.display = "flex";
-
-    const progressBar =
-        document.getElementById("progressBar");
-
-    const progressText =
-        document.getElementById("progressText");
-
-    const accessButton =
-        document.getElementById("accessButton");
-
-    accessButton.style.display = "none";
-
-    const startTime = performance.now();
-    const totalDuration = 3000;
-
-    function updateProgress(currentTime) {
-        const elapsed =
-            currentTime - startTime;
-
-        const progress =
-            Math.min(
-                elapsed / totalDuration,
-                1
-            );
-
-        const percent =
-            Math.floor(progress * 100);
-
-        progressBar.style.width =
-            percent + "%";
-
-        progressText.textContent =
-            percent + "%";
-
-        if (progress < 1) {
-            requestAnimationFrame(updateProgress);
-        } else {
-            accessButton.style.display = "block";
-            accessButton.focus();
-        }
-    }
-
-    requestAnimationFrame(updateProgress);
+if(!tiktokTab){
+status.innerHTML='<span>Allow pop-ups to continue</span>';
+button.disabled=false;
+button.classList.remove("loading");
+button.textContent="Follow on TikTok";
 }
-
-document.getElementById("accessButton").addEventListener(
-    "click",
-    function() {
-        startScreamer();
-    }
-);
-
-async function startScreamer() {
-    document.getElementById("loadingOverlay").style.display = "none";
-
-    document.body.innerHTML = "";
-
-    const screen =
-        document.createElement("div");
-
-    screen.id =
-        "screamerScreen";
-
-    const image =
-        document.createElement("img");
-
-    image.id =
-        "screamerImage";
-
-    image.src =
-        normalImage;
-
-    image.draggable =
-        false;
-
-    screen.appendChild(image);
-
-    document.body.appendChild(screen);
-
-    try {
-        if (screen.requestFullscreen) {
-            await screen.requestFullscreen();
-        }
-    } catch (error) {
-        console.log(
-            "Fullscreen was unavailable:",
-            error
-        );
-    }
-
-    try {
-        scream.currentTime = 0;
-        await scream.play();
-    } catch (error) {
-        console.log(
-            "Audio playback was blocked:",
-            error
-        );
-    }
-
-    window.addEventListener(
-        "beforeunload",
-        function(event) {
-            event.preventDefault();
-            event.returnValue = "";
-        }
-    );
-
-    let showingNormal = true;
-
-    setInterval(
-        function() {
-            showingNormal = !showingNormal;
-
-            image.src =
-                showingNormal
-                    ? normalImage
-                    : invertedImage;
-        },
-        30
-    );
-}
+});
 </script>
 
 </body>
